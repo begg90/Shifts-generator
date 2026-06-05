@@ -47,6 +47,7 @@ L'AROS viene distribuita seguendo in questo ordine:
 2. Vengono assegnate a Edo
 3. Vengono assegnate a Laura
 4. Vengono assegnate ai Senior
+
 Tutti i sottogruppi 2, 3 e 4 hanno AROS assegnate, ma si preferisce darne di piu' al 2, poi al 3, poi al 4.
 
 #### AROS Notturno
@@ -57,3 +58,9 @@ Non ha monto/smonto.
 
 ### Extra
 L'extra e' un medico che non fa molto in questo reparto. Ai fini dei turni, sappiamo che fa _solo_ AROS, sia Diurno che Notturno. La cosa importante e' che _decide lei quali e quando farli_ e lo comunica a chi fa i turni prima che vengano generati. Non si sa nemmeno quante ne faccia, va a sentimento suo.
+
+### Indisponibilita', Ferie e simili
+Ci sono 3 metodi per non essere inseriti nei turni.
+_Indisponibilita'_ (I): Chi si segna Indisponibile, non viene inserito nel turno Diurno, ma puo' essere messo nel turno Notturno.
+_Assenza_(X): Chi si segna Assente, non viene inserito ne' nel turno Diurno ne' in quello Notturno.
+_Congresso_(C): Assenza dovuta a Congresso.
