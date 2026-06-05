@@ -64,3 +64,8 @@ Ci sono 3 metodi per non essere inseriti nei turni.
 _Indisponibilita'_ (I): Chi si segna Indisponibile, non viene inserito nel turno Diurno, ma puo' essere messo nel turno Notturno.
 _Assenza_(X): Chi si segna Assente, non viene inserito ne' nel turno Diurno ne' in quello Notturno.
 _Congresso_(C): Assenza dovuta a Congresso.
+
+### Turni Esemplificativi
+Ci sono due file contenenti esempi di turni come vengono fatti manualmente adesso.
+- "Schema guardie con doppia reperibilita MAGGIO 2026.docx": turno mensile come descritto sopra.
+- "Turni settimanali.pdf": comprende le sale operatorie (che non ci competono).
