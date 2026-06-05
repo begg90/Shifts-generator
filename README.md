@@ -5,5 +5,6 @@
 - [ ] quando partire con la parte di interfaccia grafica
 - [ ] studiare OR-tools
 - [x] caricare i constraints su github
+- [ ] aggiungere esempio di output
 - [ ] tradurre i constraints in python
 - [ ] definire architettura base
