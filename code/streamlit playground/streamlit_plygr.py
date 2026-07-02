@@ -7,6 +7,7 @@ import numpy as np
 
 
 # With st.write, you can write just about anything to the app: text, data, Matplotlib figures, Altair charts and more
+st.title('Playing around with Streamlit functions')
 st.write("Hello, Streamlit! This is a simple app to demonstrate some features (looks like magic!)")
 
 df = pd.DataFrame({
