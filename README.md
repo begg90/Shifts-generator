@@ -5,6 +5,7 @@ A better description will come when... Some of the actual application will be th
 # Instructions for devs
 1. Clone repo
 2. Set up environment on VS Code
+3. Run tests
 
 ## Clone repo
 ```
