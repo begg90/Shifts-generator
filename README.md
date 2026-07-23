@@ -55,3 +55,8 @@ If pytest doesn not find src/, activate python.terminal.useEnvFile in VS Code (F
 
 ## How to update local enviroment
 For now, everytime a new package is added in the program, add it to the list in `requirements.txt` and commit it. This ensures that we all work locally with the same virtual environment. A slightly more automated way with `uv` will come soon-ish.
+
+## Hot to deactivate the virtual environment
+Simply write 
+    deactivate 
+into the terminal.
