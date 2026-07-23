@@ -1,3 +1,5 @@
 ortools
 pytest
 streamlit
+numpy 
+pandas
