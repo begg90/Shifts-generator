@@ -5,7 +5,7 @@ name: Shifts-generator test
 
 on:
   push:
-    branches: [ "main","fixing-env-problem"]
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
