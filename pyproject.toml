@@ -8,9 +8,7 @@ version = "0.1.0"
 description = "Shift generator"
 readme = "README.md"
 requires-python = ">=3.10"
+dependencies = ["ortools"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
-
-[project]
-dependencies = ["ortools"]
