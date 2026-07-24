@@ -4,9 +4,12 @@ A better description will come when... Some of the actual application will be th
 
 # Instructions for devs
 1. Clone repo
-2. Set up environment on VS Code
-3. Run tests
-4. How to update local environment
+2. (Recommended) Set up environment on VS Code
+3. Install package
+4. (Optional) Install dev tools
+5. (Optional) Install webapp tools
+6. How to update local environment
+7. How to run tests
 
 ## Clone repo
 ```
@@ -15,48 +18,68 @@ cd Shifts-generator
 ```
 
 ## Set up the environment on VS Code
+This is recommended to devs who need to install dev tools.
 ### With pip
 #### Windows PowerShell
 ```
 python -m venv .venv
 .venv\Scripts\Activate.ps1
-pip install -r requirements.txt
 ```
 #### MacOS/Linux
 ```
 python -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
 ```
 
-### With uv (recommended)
+### With uv
 #### Windows PowerShell
 ```
 uv venv .venv
 .venv\Scripts\Activate.ps1
-uv pip install -r requirements.txt
 ```
 #### MacOS/Linux
 ```
 uv venv .venv
 source .venv/bin/activate
+```
+VS Code might not use the correct environment right away. In that case, do
+Ctrl + Shift + P --> python: Select interpreter --> <repo>/.venv/
+
+## Install package
+```
+pip install -e . 
+```
+or
+```
+uv pip install -e . 
+```
+
+## Install dev tools
+```
+pip install -r dev-requirements.txt
+```
+or
+```
+uv pip install -r dev-requirements.txt
+```
+
+## Install webapp tools
+```
+pip install -r requirements.txt
+```
+or
+```
 uv pip install -r requirements.txt
 ```
 
-VS Code might not use the correct environment right away. In that case, do
-Ctrl + Shift + P --> python: Select interpreter --> <repo>/.venv/bin/python
-
 ## Running tests
-`python -m pytest -v` or `pytest -v`
-
-
-## Troubleshooting
-If pytest doesn not find src/, activate python.terminal.useEnvFile in VS Code (File --> Preferences --> Settings --> type python.terminal.useEnvFile and select it)
+`pytest` or `pytest -v` or `python -m pytest -v`
 
 ## How to update local enviroment
-For now, everytime a new package is added in the program, add it to the list in `requirements.txt` and commit it. This ensures that we all work locally with the same virtual environment. A slightly more automated way with `uv` will come soon-ish.
+New packages need to be added to the project depending on their use.
+Dependencies used in the backend must be added to the ```.toml``` file. Dependencies used in the webapp must be added to ```requirements.txt```. Dependencies that are dev tools must be added to ```dev-requirements.txt```
 
-## Hot to deactivate the virtual environment
+## How to deactivate the virtual environment
 Simply write 
-    deactivate 
+ ```   deactivate ```
 into the terminal.
