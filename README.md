@@ -8,7 +8,7 @@ A better description will come when... Some of the actual application will be th
 3. Install package
 4. (Optional) Install dev tools
 5. (Optional) Install webapp tools
-6. How to update local environment
+6. How to update dependencies installation
 7. How to run tests
 
 ## Clone repo
@@ -75,7 +75,7 @@ uv pip install -r requirements.txt
 ## Running tests
 `pytest` or `pytest -v` or `python -m pytest -v`
 
-## How to update local enviroment
+## How to update dependencies installation
 New packages need to be added to the project depending on their use.
 Dependencies used in the backend must be added to the ```.toml``` file. Dependencies used in the webapp must be added to ```requirements.txt```. Dependencies that are dev tools must be added to ```dev-requirements.txt```
 
