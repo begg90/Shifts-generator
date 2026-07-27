@@ -11,48 +11,47 @@ st.title("User inputs")
 
 ## Informazioni sui membri del reparto - INPUT & OUTPUT
 
-nr_senior = st.number_input("Quanti senior ci sono in reparto?", min_value=0, max_value=10, step=1, key = "nr_senior")
+nr_senior = st.number_input("How many seniors are there?", min_value=0, max_value=10, step=1, key = "nr_senior")
 if nr_senior == 1:
-    st.text_input("Scrivi il suo nome", key = "senior_name")
+    st.text_input("Write their name", key = "senior_name")
 if nr_senior > 1:
-    st.text_input("Scrivi i loro nomi separati da una virgola", key = "senior_names")
+    st.text_input("Write their names separated by a comma", key = "senior_names")
 
-nr_junior = st.number_input("Quanti junior ci sono in reparto?", min_value=0, max_value=10, step=1, key = "nr_junior")
+nr_junior = st.number_input("How many juniors are there?", min_value=0, max_value=10, step=1, key = "nr_junior")
 if nr_junior == 1:
-    st.text_input("Scrivi il suo nome", key = "junior_name")
+    st.text_input("Write their name", key = "junior_name")
 if nr_junior > 1:
-    st.text_input("Scrivi i loro nomi separati da una virgola", key = "junior_names")
+    st.text_input("Write their names separated by a comma", key = "junior_names")
 
 
 if nr_senior == 1:
-    st.write(f"Nel reparto c'è un solo senior")
+    st.write(f"In the team there is only one senior")
 if nr_senior > 1:
-    st.write(f"I senior in reparto sono: {st.session_state.nr_senior}")
+    st.write(f"The seniors in the team are: {st.session_state.nr_senior}")
 
 if nr_junior == 1:
-    st.write("Nel reparto c'è un solo junior")
+    st.write("In the team there is only one junior")
 if nr_junior > 1:
-    st.write(f"I junior in reparto sono: {st.session_state.nr_junior}")
+    st.write(f"The juniors in the team are: {st.session_state.nr_junior}")
 
 
 
 ## Calendario - INPUT & OUTPUT
 
-mesi = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"]
+mesi = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
 with st.form("date_form"):
 
-    st.write("Seleziona il mese e l'anno su cui lavorare")
+    st.write("Select the month and year you want to work on")
 
-    d_year = st.selectbox("Seleziona l'anno che ti interessa", options = list(range(2026, 2036)), index=0, key = "d_year")
-    d_month = st.selectbox("Seleziona il mese che ti interessa", options = mesi, index=None, key = "d_month")
+    d_year = st.selectbox("Select the year you are interested in", options = list(range(2026, 2036)), index=0, key = "d_year")
+    d_month = st.selectbox("Select the month you are interested in", options = mesi, index=None, key = "d_month")
 
     submitted = st.form_submit_button("OK")
 
 if submitted:
     index_month = mesi.index(st.session_state.d_month) + 1
 
-    st.write(f"Il mese su cui lavorare è: {st.session_state.d_month} {st.session_state.d_year}")
+    st.write(f"The month you want to work on is: {st.session_state.d_month} {st.session_state.d_year}")
     calendar = cal.monthcalendar(int(st.session_state.d_year), index_month)
     st.table(calendar)
- 
