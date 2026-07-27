@@ -1,1 +1,1 @@
-In this folder we can create subfolder dedicated to specific tasks that we want to play around with, e.g. streamlit and ortools.
+In this folder we can create subfolders dedicated to specific tasks that we want to play around with, e.g. streamlit and ortools.
