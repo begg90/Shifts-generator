@@ -48,7 +48,7 @@ L'AROS viene distribuita seguendo in questo ordine:
 3. Vengono assegnate a Laura
 4. Vengono assegnate ai Senior
 
-Tutti i sottogruppi 2, 3 e 4 hanno AROS assegnate, ma si preferisce darne di piu' al 2, poi al 3, poi al 4.
+Tutti i sottogruppi 2, 3 e 4 hanno AROS assegnate, ma si preferisce darne di piu' al 2, poi al 3, poi al 4. I Senior che fanno AROS possono essere anche Reperibili allo stesso tempo (succede qualche volta).
 
 #### AROS Notturno
 Ha il monto e lo smonto notte. Quindi se lavora una notte, non e' nei turni ne' il giorno prima ne' il giorno dopo.
