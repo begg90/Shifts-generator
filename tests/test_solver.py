@@ -1,0 +1,1 @@
+# tests variables and constraints with small models

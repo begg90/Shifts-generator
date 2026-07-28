@@ -1,0 +1,1 @@
+# tests pure models, i.e. their structure and not their content (I think)
