@@ -1,4 +1,4 @@
-# this file contains ... ADD DESCRIPTION
+# this file contains symbolic constants
 
 
 # example of code snippet
