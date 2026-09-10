@@ -1,0 +1,1 @@
+# here are the solver parameters (e.g. how many workers, which role, free days, accoglimento calendar...)
