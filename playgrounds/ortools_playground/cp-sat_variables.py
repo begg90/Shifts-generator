@@ -58,6 +58,7 @@ print(const_var.index) # returns the index of the variable: 3
 
 # create a series of integer variables
 # these variables are pandas Series
+# new_int_var_series("d" string name, pd.Index([1, 2, 3]), [0,0,1] lower bound, [7,8,9] upper bound)
 int_series_var = model.new_int_var_series("d", pd.Index([1, 2, 3]), [0,0,1], [7,8,9])
 print(int_series_var)
 """
@@ -91,8 +92,8 @@ doctors = ["eenie",
            "meenie",
            "miney",
            "moe"]
-shift_types = [" day_duty","night_duty","day_AROS","night_AROS","night_on_call","24h_on_call"] # the internet told me that a "guardia" is a "duty doctor"
-dates = [1,2,3] # only three days here, will contain dates
+shift_types = ["day_duty","night_duty","day_AROS","night_AROS","night_on_call","24h_on_call"] # the internet told me that a "guardia" is a "duty doctor"
+dates = [1,2,3] # only three days here, will contain full month dates
 index = pd.MultiIndex.from_product(
     [doctors, dates, shift_types],
     names = ["doctor", "date", "shift"]
