@@ -1,57 +1,49 @@
 import streamlit as st
-import pandas as pd
-import calendar as cal
+
+# Setting a dummy logged_in state for testing purposes. The login funcion is also the welcome page of the app. 
+# The user will be able to log in and log out, and the navigation will change accordingly.
+
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
 
 
-st.write("This is a first attempt at creating a draft of our app. It will be used to test some features and functions of Streamlit and get an idea of the " \
+def login():
+    st.title(":red[WELCOME TO OUR SHIFTS GENERATOR APP!]")
+    st.write("This is a first attempt at creating a draft of our app. It will be used to test some features and functions of Streamlit and get an idea of the " \
         "things we will need to implement.")
 
-st.title("User inputs")
+    if st.button("Log in"):
+        st.session_state.logged_in = True
+        st.rerun()
+
+def logout():
+    if st.button("Log out"):
+        st.session_state.logged_in = False
+        st.rerun()
 
 
-## Informazioni sui membri del reparto - INPUT & OUTPUT
-
-nr_senior = st.number_input("How many seniors are there?", min_value=0, max_value=10, step=1, key = "nr_senior")
-if nr_senior == 1:
-    st.text_input("Write their name", key = "senior_name")
-if nr_senior > 1:
-    st.text_input("Write their names separated by a comma", key = "senior_names")
-
-nr_junior = st.number_input("How many juniors are there?", min_value=0, max_value=10, step=1, key = "nr_junior")
-if nr_junior == 1:
-    st.text_input("Write their name", key = "junior_name")
-if nr_junior > 1:
-    st.text_input("Write their names separated by a comma", key = "junior_names")
+# Defining the pages of the app. Until  the users log in, he won't be able to access the other pages, even if he tries to navigate to them directly. 
 
 
-if nr_senior == 1:
-    st.write(f"In the team there is only one senior")
-if nr_senior > 1:
-    st.write(f"The seniors in the team are: {st.session_state.nr_senior}")
+login_page = st.Page(login, title="Log in", icon=":material/login:")
+logout_page = st.Page(logout, title="Log out", icon=":material/logout:")
 
-if nr_junior == 1:
-    st.write("In the team there is only one junior")
-if nr_junior > 1:
-    st.write(f"The juniors in the team are: {st.session_state.nr_junior}")
+new_shift_page = st.Page("pages/new_shift.py", title="Create new shift", icon=":material/calendar_month:")
+team_info = st.Page("pages/team_info.py", title="Team information", icon=":material/group:")
+
+
+if st.session_state.logged_in:
+    pg = st.navigation(
+        {
+            "Account": [logout_page],
+            "Shifts": [new_shift_page],
+            "Team": [team_info]
+        }
+    )
+else:
+    pg = st.navigation([login_page])
+
+pg.run()
 
 
 
-## Calendario - INPUT & OUTPUT
-
-mesi = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-
-with st.form("date_form"):
-
-    st.write("Select the month and year you want to work on")
-
-    d_year = st.selectbox("Select the year you are interested in", options = list(range(2026, 2036)), index=0, key = "d_year")
-    d_month = st.selectbox("Select the month you are interested in", options = mesi, index=None, key = "d_month")
-
-    submitted = st.form_submit_button("OK")
-
-if submitted:
-    index_month = mesi.index(st.session_state.d_month) + 1
-
-    st.write(f"The month you want to work on is: {st.session_state.d_month} {st.session_state.d_year}")
-    calendar = cal.monthcalendar(int(st.session_state.d_year), index_month)
-    st.table(calendar)
