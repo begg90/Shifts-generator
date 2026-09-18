@@ -1,10 +1,8 @@
 import streamlit as st
 
 
-st.set_page_config(
-    page_title="Welcome!",
-    page_icon="👋",
-)
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
 
 # Welcome message on the home page
 
@@ -14,10 +12,36 @@ st.write("This is a first attempt at creating a draft of our app. It will be use
         "things we will need to implement.")
 
 
-# Working on the sidebar & navigation menu
+def login():
+    if st.button("Log in"):
+        st.session_state.logged_in = True
+        st.rerun()
 
-st.sidebar.info('What would you like to do?')
+def logout():
+    if st.button("Log out"):
+        st.session_state.logged_in = False
+        st.rerun()
 
 
-new_shift_page = st.Page("pages/page_1.py", title="New Shift")
-pg = st.navigation([new_shift_page])
+login_page = st.Page(login, title="Log in", icon=":material/login:")
+logout_page = st.Page(logout, title="Log out", icon=":material/logout:")
+
+new_shift_page = st.Page("pages/new_shift.py", title="Create new shift", icon=":material/calendar_month:")
+team_info = st.Page("pages/team_info.py", title="Team information", icon=":material/group:")
+
+
+if st.session_state.logged_in:
+    pg = st.navigation(
+        {
+            "Account": [logout_page],
+            "Shifts": [new_shift_page],
+            "Team": [team_info]
+        }
+    )
+else:
+    pg = st.navigation([login_page])
+
+pg.run()
+
+
+
