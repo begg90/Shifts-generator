@@ -44,6 +44,3 @@ else:
     pg = st.navigation([login_page])
 
 pg.run()
-
-
-

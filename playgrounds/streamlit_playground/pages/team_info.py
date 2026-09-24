@@ -1,7 +1,4 @@
 import streamlit as st
-import pandas as pd
-import calendar as cal
-
 
 ## Informazioni sui membri del reparto - INPUT & OUTPUT
 
@@ -10,6 +7,7 @@ if nr_senior == 1:
     st.text_input("Write their name", key = "senior_name")
 if nr_senior > 1:
     st.text_input("Write their names separated by a comma", key = "senior_names")
+
 
 nr_junior = st.number_input("How many juniors are there?", min_value=0, max_value=10, step=1, key = "nr_junior")
 if nr_junior == 1:
