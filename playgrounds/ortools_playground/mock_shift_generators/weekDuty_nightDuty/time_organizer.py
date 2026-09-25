@@ -1,7 +1,5 @@
 import calendar
 
-cal = calendar.Calendar()
-
 # get month as a list of tuples containing (yyyy,mm,dd,weekdaynumber)
 # only keep tuples of (dd,weekdaynumber)
 # remove days belonging to previous month (they do not need planning). Here they are saved with their dd as in a classical calendar
