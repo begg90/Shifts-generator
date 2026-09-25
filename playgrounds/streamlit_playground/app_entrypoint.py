@@ -1,5 +1,7 @@
 import streamlit as st
+from playgrounds.streamlit_playground.state import init_state, sync_widget
 
+init_state()
 # Setting a dummy logged_in state for testing purposes. The login funcion is also the welcome page of the app. 
 # The user will be able to log in and log out, and the navigation will change accordingly.
 
@@ -24,12 +26,11 @@ def logout():
 
 # Defining the pages of the app. Until  the users log in, he won't be able to access the other pages, even if he tries to navigate to them directly. 
 
-
 login_page = st.Page(login, title="Log in", icon=":material/login:")
 logout_page = st.Page(logout, title="Log out", icon=":material/logout:")
 
-new_shift_page = st.Page("pages/new_shift.py", title="Create new shift", icon=":material/calendar_month:")
-team_info = st.Page("pages/team_info.py", title="Team information", icon=":material/group:")
+new_shift_page = st.Page("new_shift.py", title="Create new shift", icon=":material/calendar_month:")
+team_info = st.Page("team_info.py", title="Team information", icon=":material/group:")
 
 
 if st.session_state.logged_in:
@@ -42,5 +43,6 @@ if st.session_state.logged_in:
     )
 else:
     pg = st.navigation([login_page])
+
 
 pg.run()

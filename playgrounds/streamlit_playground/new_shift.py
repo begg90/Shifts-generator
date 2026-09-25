@@ -21,3 +21,4 @@ if submitted:
     st.write(f"The month you want to work on is: {st.session_state.chosen_month} {st.session_state.chosen_year}")
     calendar = cal.monthcalendar(int(st.session_state.chosen_year), index_month)
     st.table(calendar)
+
