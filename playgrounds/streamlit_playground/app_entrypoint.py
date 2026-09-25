@@ -19,6 +19,12 @@ def login():
         st.rerun()
 
 def logout():
+    #testing the session state, to see if it is persistent across pages.
+    st.write("Session state:", dict(st.session_state))
+    st.session_state["test"] = st.session_state.get("test", 0) + 1
+
+
+    st.write("You are now logged in. You can log out by clicking the button below.")
     if st.button("Log out"):
         st.session_state.logged_in = False
         st.rerun()
