@@ -7,6 +7,6 @@ streamlit run <app>.py
 ```
 and Streamlit will automatically open in your browser.
 
-But, to let the imports work correctly, use:
+I had a few problems with importing, if streamlit can't find the imports use this code here:
 
 python -m streamlit run playgrounds\streamlit_playground\app_entrypoint.py

@@ -1,16 +1,17 @@
 import streamlit as st
-from playgrounds.streamlit_playground.state import load_value, store_value, check_and_initialize_state
-
+from playgrounds.streamlit_playground.state import persistent_widget
 
 
 ## Informazioni sui membri del reparto - INPUT & OUTPUT
-check_and_initialize_state()
-load_value('nr_senior')
-load_value('nr_junior')
 
-nr_senior = st.number_input('How many seniors are there?', min_value=0, max_value=10, step=1, key = "_nr_senior", on_change = store_value, args = ['nr_senior'])
+nr_senior = persistent_widget(
+    st.number_input, 'How many seniors are there?', 'nr_senior',
+    min_value=0, max_value=10, step=1)
 
-nr_junior = st.number_input('How many juniors are there?', min_value=0, max_value=10, step=1, key = "_nr_junior", on_change = store_value, args = ['nr_junior'])
+nr_junior = persistent_widget(
+    st.number_input, 'How many juniors are there?', 'nr_junior',
+    min_value=0, max_value=10, step=1)
+
 
 
 if nr_senior == 1:
@@ -22,5 +23,3 @@ if nr_junior == 1:
     st.write('In the team there is only one junior')
 if nr_junior > 1:
     st.write(f'The juniors in the team are: {st.session_state._nr_junior}')
-
-

@@ -1,12 +1,8 @@
 import streamlit as st
-from playgrounds.streamlit_playground.state import store_value, load_value, check_and_initialize_state, reset_state
+from playgrounds.streamlit_playground.state import check_and_initialize_state, reset_state
 
-
-
-if 'logged_in' not in st.session_state:
-    # Setting a dummy logged_in state for testing purposes. The login funcion is also the welcome page of the app. 
-    # The user will be able to log in and log out, and the navigation will change accordingly.
-    st.session_state.logged_in = False
+# The entrypoint runs on every rerun, before the selected page: initializing here guarantees that every page finds the keys of DEFAULT_STATE.
+check_and_initialize_state()
 
 
 def login():
@@ -23,8 +19,7 @@ def logout():
     st.write('You are now logged in. You can log out by clicking the button below. If you do so, the values you have entered in the previous pages will be reset to the default values'
     'if you didn\'t save them')
     if st.button('Log out'):
-        st.session_state.logged_in = False
-        reset_state()
+        reset_state() # this will reset all session states to DEFAULT, include the loggd_in one
         st.rerun()
 
 
