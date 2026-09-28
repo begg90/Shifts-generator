@@ -1,11 +1,11 @@
 import streamlit as st
-from playgrounds.streamlit_playground.state import init_state, sync_widget
+from playgrounds.streamlit_playground.state import store_value, load_value, check_and_initialize_state
 
-init_state()
-# Setting a dummy logged_in state for testing purposes. The login funcion is also the welcome page of the app. 
-# The user will be able to log in and log out, and the navigation will change accordingly.
+
 
 if "logged_in" not in st.session_state:
+    # Setting a dummy logged_in state for testing purposes. The login funcion is also the welcome page of the app. 
+    # The user will be able to log in and log out, and the navigation will change accordingly.
     st.session_state.logged_in = False
 
 
