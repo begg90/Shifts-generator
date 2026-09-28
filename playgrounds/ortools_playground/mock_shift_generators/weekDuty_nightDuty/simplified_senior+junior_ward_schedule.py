@@ -27,23 +27,21 @@
 from ortools.sat.python import cp_model
 from ortools.sat.python import cp_model_helper
 from time_organizer import my_calendar
+from local_enums import SeniorityLevel, ShiftList
 
 # constant parameters that should belong to an enums kind of section
-SENIOR = 0 # not sure we need them as enums, though
-JUNIOR = 1
 
 def get_data():
-    doctors = [{"name":"eenie","seniority":SENIOR},
-            {"name":"miney","seniority":SENIOR},
-            {"name":"meenie","seniority":SENIOR},
-            {"name":"moe","seniority":SENIOR},
-            {"name":"tom","seniority":SENIOR},
-            {"name":"jerry","seniority":SENIOR},
-            {"name":"schiavo1","seniority":JUNIOR},
-            {"name":"schiavo2","seniority":JUNIOR},
-            {"name":"schiavo3","seniority":JUNIOR}]
+    doctors = [{"name":"eenie","seniority":SeniorityLevel.SENIOR.name},
+               {"name":"meenie","seniority":SeniorityLevel.SENIOR.name},
+               {"name":"miney","seniority":SeniorityLevel.SENIOR.name},
+               {"name":"moe","seniority":SeniorityLevel.SENIOR.name},
+               {"name":"tom","seniority":SeniorityLevel.SENIOR.name},
+               {"name":"jerry","seniority":SeniorityLevel.SENIOR.name},
+               {"name":"schiavo1","seniority":SeniorityLevel.JUNIOR.name},
+               {"name":"schiavo2","seniority":SeniorityLevel.JUNIOR.name},
+               {"name":"schiavo3","seniority":SeniorityLevel.JUNIOR.name}]
 
-    shift_types = ["dutyWeek","nightDuty"]
     # calendar
     year = 2026
     month = 9
@@ -57,31 +55,30 @@ def get_data():
     junior_cal.get_month_asstrings()
     junior_cal.month_cleanup()
     junior_cal.month_removeSundays()
-    return doctors, senior_cal, junior_cal, shift_types
+    return doctors, senior_cal, junior_cal
 
 
 def seniority(doctors):
-    juniors = [doc["name"] for doc in doctors if doc["seniority"] == JUNIOR]
-    seniors = [doc["name"] for doc in doctors if doc["seniority"] == SENIOR]
+    juniors = [doc["name"] for doc in doctors if doc["seniority"] == SeniorityLevel.JUNIOR.name]
+    seniors = [doc["name"] for doc in doctors if doc["seniority"] == SeniorityLevel.SENIOR.name]
     return juniors, seniors
 
-def valid_combos(doctors,senior_month,junior_month,shift_types):
+def valid_combos(doctors,senior_month,junior_month):
     # NB: not a fan of this solution because combos cannot be accessed with readable keys but with indices
     juniors,seniors = seniority(doctors)
     # careful: combos must be hashable and lists aren't.
-    combos = ([(doc,date,shift_types[0]) for doc in juniors for date in junior_month] + 
-              [(doc,date,shift_types[-1]) for doc in seniors for date in senior_month])
+    combos = ([(doc,date,ShiftList.DUTY_WEEK.name) for doc in juniors for date in junior_month] + 
+              [(doc,date,ShiftList.NIGHT_DUTY.name) for doc in seniors for date in senior_month])
     return combos
 
 class scheduled_model(cp_model.CpModel):
 
-    def __init__(self, doctors,senior_cal,work_weeks,shift_types,combos): 
+    def __init__(self, doctors,senior_cal,work_weeks,combos): 
         cp_model.CpModel.__init__(self)
         self._doctors = doctors
         self._senior_dates = senior_cal
         self._work_weeks = work_weeks
         self._index = combos
-        self._shift_types = shift_types
         self.shifts = {}
         self.dutyWeek = {} # this one could even be _dutyWeek
 
@@ -100,7 +97,7 @@ class scheduled_model(cp_model.CpModel):
         for day in self._senior_dates:
             # keep who_can_work for future FREE days
             who_can_work = [
-                self.shifts[doc,day,self._shift_types[1]] for doc in seniors if (doc,day,self._shift_types[1]) in self._index
+                self.shifts[doc,day,ShiftList.NIGHT_DUTY.name] for doc in seniors if (doc,day,ShiftList.NIGHT_DUTY.name) in self._index
             ]
             self.add_exactly_one(who_can_work)
         return
@@ -119,8 +116,8 @@ class scheduled_model(cp_model.CpModel):
         j,seniors = seniority(self._doctors)
         for doc in seniors:
             for day in range(len(self._senior_dates)-1):
-                self.add_at_most_one([self.shifts[doc,self._senior_dates[day],"nightDuty"], 
-                                      self.shifts[doc,self._senior_dates[day+1],"nightDuty"]])
+                self.add_at_most_one([self.shifts[doc,self._senior_dates[day],ShiftList.NIGHT_DUTY.name], 
+                                      self.shifts[doc,self._senior_dates[day+1],ShiftList.NIGHT_DUTY.name]])
         return
 
     def assign_dutyWeek(self):
@@ -130,7 +127,7 @@ class scheduled_model(cp_model.CpModel):
         for doc in juniors:
             for week in self._work_weeks:
                 for date in week:
-                    self.add(self.shifts[doc,date,"dutyWeek"] == 1).only_enforce_if(self.dutyWeek[doc,week])
+                    self.add(self.shifts[doc,date,ShiftList.DUTY_WEEK.name] == 1).only_enforce_if(self.dutyWeek[doc,week])
         return
 
     def forbid_consecutive_dutyWeek(self):
@@ -154,10 +151,10 @@ class scheduled_model(cp_model.CpModel):
             max_shifts_per_doctor = min_shifts_per_doctor + 1
         for doc in seniors:
             shifts_worked = sum( 
-                self.shifts[(doc,day,shift)] 
+                self.shifts[(doc,day,shift.name)] 
                 for day in self._senior_dates
-                for shift in self._shift_types
-                if (doc,day,shift) in self._index
+                for shift in ShiftList
+                if (doc,day,shift.name) in self._index
             )    
             self.add(min_shifts_per_doctor <= shifts_worked)     
             self.add(shifts_worked <= max_shifts_per_doctor)
@@ -176,10 +173,10 @@ class scheduled_model(cp_model.CpModel):
         print(max_shifts_per_doctor)
         for doc in juniors:
             shifts_worked = sum( 
-                self.shifts[(doc,day,shift)]
+                self.shifts[(doc,day,shift.name)]
                 for day in self._senior_dates
-                for shift in self._shift_types
-                if (doc,day,shift) in self._index
+                for shift in ShiftList
+                if (doc,day,shift.name) in self._index
             )
             self.add(min_shifts_per_doctor * 6 <= shifts_worked)     
             self.add(shifts_worked <= max_shifts_per_doctor * 6) # could this be worse? Doubt it
@@ -187,13 +184,12 @@ class scheduled_model(cp_model.CpModel):
 
 class doctorsPartialSolutionPrinter(cp_model.CpSolverSolutionCallback):
 
-    def __init__(self, shifts, doctors, senior_cal, shift_types, combos, limit):
+    def __init__(self, shifts, doctors, senior_cal, combos, limit):
         cp_model.CpSolverSolutionCallback.__init__(self)
         self._shifts = shifts
         self._doctors = doctors
         self._dates = senior_cal
         self._index = combos
-        self._shift_types = shift_types
         self._solution_count = 0
         self._solution_limit = limit
 
@@ -205,13 +201,13 @@ class doctorsPartialSolutionPrinter(cp_model.CpSolverSolutionCallback):
             print(f"Day {day}")
             for doc in self._doctors:
                 is_working = False
-                for shift in self._shift_types:
-                    if (doc["name"],day,shift) in self._index:
-                        if self.value(self._shifts[(doc["name"],day,shift)]):
+                for shift in ShiftList:
+                    if (doc["name"],day,shift.name) in self._index:
+                        if self.value(self._shifts[(doc["name"],day,shift.name)]):
                             is_working = True
-                            print(f"Doctor {doc["name"]} works {shift}")
+                            print(f"Doctor {doc["name"]} works {shift.name}")
                         if not is_working:
-                            print(f"Doctor {doc["name"]} does not work {shift}")
+                            print(f"Doctor {doc["name"]} does not work {shift.name}")
                     #else:
                     #    print(f"ELSE Doctor {doc["name"]} does not work")
 
@@ -227,11 +223,11 @@ class doctorsPartialSolutionPrinter(cp_model.CpSolverSolutionCallback):
 
 def main() -> None:
     # data
-    doctors, senior_cal, junior_cal, shift_types = get_data()
+    doctors, senior_cal, junior_cal = get_data()
     # create index 
-    combos = valid_combos(doctors,senior_cal.month,junior_cal.month,shift_types)
+    combos = valid_combos(doctors,senior_cal.month,junior_cal.month)
     # create model
-    model = scheduled_model(doctors,senior_cal.month,junior_cal.weeks,shift_types,combos)
+    model = scheduled_model(doctors,senior_cal.month,junior_cal.weeks,combos)
     model.create_variables()
     model.one_employee_per_nightDuty()
     model.one_employee_per_dutyWeek()
@@ -251,7 +247,7 @@ def main() -> None:
     # Display the first five solutions.
     solution_limit = 5
     solution_printer = doctorsPartialSolutionPrinter(
-        model.shifts, doctors, senior_cal.month, shift_types, combos, solution_limit)
+        model.shifts, doctors, senior_cal.month, combos, solution_limit)
 
     # invoke the solver
     status = solver.solve(model, solution_printer)
