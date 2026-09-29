@@ -200,9 +200,9 @@ class doctorsPartialSolutionPrinter(cp_model.CpSolverSolutionCallback):
                     if (doc["name"],day,shift.name) in self._index:
                         if self.value(self._shifts[(doc["name"],day,shift.name)]):
                             is_working = True
-                            print(f"Doctor {doc["name"]} works {shift.name}")
+                            print(f"Doctor {doc['name']} works {shift.name}")
                         if not is_working:
-                            print(f"Doctor {doc["name"]} does not work")
+                            print(f"Doctor {doc['name']} does not work")
         for week in self._work_weeks:
             print(f"Week {week}")
             for doc in juniors:
