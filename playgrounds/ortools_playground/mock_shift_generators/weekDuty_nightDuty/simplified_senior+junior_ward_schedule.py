@@ -9,10 +9,10 @@
 #                                                                                    (2) distribute_dutyWeek_workload()
 
 # constraints that are valid for the day shift only:
-# junior doctors work Monday to Saturday included, hence six consecutive days.                  ---> constraint: assign_weekDuty()
+# junior doctors work Monday to Saturday included, hence six consecutive days.                  ---> constraint: assign_dutyWeek()
 # sunday is a rest day for all junior doctors (Sundays will become dayDuty in a later version). ---> valid_combos()
 # junior doctors do not work consecute shifts                                                   ---> forbid_consecutive_dutyWeek()
-# not more than 2 dutyWeeks per month                                                           ---> ? DO NOT DO YET
+# not more than 2 dutyWeeks per month                                                           ---> ? DO NOT IMPLEMENT: redundant
 # The one in the previous line does not prevent assigning 2 weeks to 2 people
 # and leaving a 3rd unassigned. Hence, we need a distribution of workload.
 # We probably don't need a "no more than 2 weeks per month" constraint because there are 4 weeks.
@@ -71,6 +71,7 @@ def valid_combos(doctors,senior_month,junior_month):
               [(doc,date,ShiftList.NIGHT_DUTY.name) for doc in seniors for date in senior_month])
     return combos
 
+
 class scheduled_model(cp_model.CpModel):
 
     def __init__(self, doctors,senior_cal,work_weeks,combos): 
@@ -95,7 +96,7 @@ class scheduled_model(cp_model.CpModel):
         #constraint
         j,seniors = seniority(self._doctors)
         for day in self._senior_dates:
-            # keep who_can_work for future FREE days
+            # keep who_can_work for future FREE days handling
             who_can_work = [
                 self.shifts[doc,day,ShiftList.NIGHT_DUTY.name] for doc in seniors if (doc,day,ShiftList.NIGHT_DUTY.name) in self._index
             ]
@@ -120,16 +121,6 @@ class scheduled_model(cp_model.CpModel):
                                       self.shifts[doc,self._senior_dates[day+1],ShiftList.NIGHT_DUTY.name]])
         return
 
-    def assign_dutyWeek(self):
-        # constraint
-        # juniors work six consecutive days of duty, i.e. a dutyWeek
-        juniors,s = seniority(self._doctors)    
-        for doc in juniors:
-            for week in self._work_weeks:
-                for date in week:
-                    self.add(self.shifts[doc,date,ShiftList.DUTY_WEEK.name] == 1).only_enforce_if(self.dutyWeek[doc,week])
-        return
-
     def forbid_consecutive_dutyWeek(self):
         # constraint
         # juniors cannot work consecutive duty weeks
@@ -139,11 +130,24 @@ class scheduled_model(cp_model.CpModel):
                 self.add_at_most_one([self.dutyWeek[(doc, self._work_weeks[n])], self.dutyWeek[(doc, self._work_weeks[n+1])]])
         return
 
+    def assign_dutyWeek(self):
+        # constraint
+        # juniors work six consecutive days of duty, i.e. a dutyWeek
+        # NB: ALL variables should be contrained, otherwise the solver assign them to 1
+        juniors,s = seniority(self._doctors)    
+        for doc in juniors:
+            for week in self._work_weeks:
+                for date in week:
+                    # an example using only_enforce_if
+                    #self.add(self.shifts[doc,date,ShiftList.DUTY_WEEK.name] == 1).only_enforce_if(self.dutyWeek[doc,week])
+                    #self.add(self.shifts[doc,date,ShiftList.DUTY_WEEK.name] == 0).only_enforce_if(self.dutyWeek[doc,week].Not())
+                    # a clearer expression of the above 
+                    self.add(self.shifts[doc,date,ShiftList.DUTY_WEEK.name] == self.dutyWeek[doc,week])
+        return
+
     def distribute_nightDuty_workload(self):
         j,seniors = seniority(self._doctors)
-        # NOT a nice solution, definitely NOT general
-        # e.g. as soon as vacation days are included, this does not work anymore
-        total_shifts = sum(1 for combo in self._index if combo[0] == seniors[0]) # look at one senior only. Extra ugly solution.
+        total_shifts = len(set([(day, shift) for d, day, shift in self._index if shift == ShiftList.NIGHT_DUTY.name]))
         min_shifts_per_doctor = total_shifts // len(seniors)
         if total_shifts % len(seniors) == 0:
             max_shifts_per_doctor = min_shifts_per_doctor
@@ -151,10 +155,9 @@ class scheduled_model(cp_model.CpModel):
             max_shifts_per_doctor = min_shifts_per_doctor + 1
         for doc in seniors:
             shifts_worked = sum( 
-                self.shifts[(doc,day,shift.name)] 
+                self.shifts[(doc,day,ShiftList.NIGHT_DUTY.name)] 
                 for day in self._senior_dates
-                for shift in ShiftList
-                if (doc,day,shift.name) in self._index
+                if (doc,day,ShiftList.NIGHT_DUTY.name) in self._index
             )    
             self.add(min_shifts_per_doctor <= shifts_worked)     
             self.add(shifts_worked <= max_shifts_per_doctor)
@@ -163,43 +166,37 @@ class scheduled_model(cp_model.CpModel):
     def distribute_dutyWeek_workload(self):
         juniors,s = seniority(self._doctors)
         total_shifts = len(self._work_weeks)
-        print(total_shifts)
         min_shifts_per_doctor = total_shifts // len(juniors)
-        print(min_shifts_per_doctor)
         if total_shifts % len(juniors) == 0:
             max_shifts_per_doctor = min_shifts_per_doctor
         else:
             max_shifts_per_doctor = min_shifts_per_doctor + 1
-        print(max_shifts_per_doctor)
         for doc in juniors:
-            shifts_worked = sum( 
-                self.shifts[(doc,day,shift.name)]
-                for day in self._senior_dates
-                for shift in ShiftList
-                if (doc,day,shift.name) in self._index
-            )
-            self.add(min_shifts_per_doctor * 6 <= shifts_worked)     
-            self.add(shifts_worked <= max_shifts_per_doctor * 6) # could this be worse? Doubt it
+            shifts_worked = sum(self.dutyWeek[(doc,week)] for week in self._work_weeks)
+            self.add(min_shifts_per_doctor <= shifts_worked)     
+            self.add(shifts_worked <= max_shifts_per_doctor)
         return
 
 class doctorsPartialSolutionPrinter(cp_model.CpSolverSolutionCallback):
 
-    def __init__(self, shifts, doctors, senior_cal, combos, limit):
+    def __init__(self, shifts, dutyWeek, doctors, senior_cal, work_weeks, combos, limit):
         cp_model.CpSolverSolutionCallback.__init__(self)
         self._shifts = shifts
+        self.dutyWeek = dutyWeek
         self._doctors = doctors
         self._dates = senior_cal
+        self._work_weeks = work_weeks
         self._index = combos
         self._solution_count = 0
         self._solution_limit = limit
 
     def on_solution_callback(self):
-        # TO DO: change this for better visualization
+        juniors,seniors = seniority(self._doctors)
         self._solution_count += 1
         print(f"Solution {self._solution_count}")
         for day in self._dates:
             print(f"Day {day}")
-            for doc in self._doctors:
+            for doc in self._doctors:    
                 is_working = False
                 for shift in ShiftList:
                     if (doc["name"],day,shift.name) in self._index:
@@ -207,10 +204,17 @@ class doctorsPartialSolutionPrinter(cp_model.CpSolverSolutionCallback):
                             is_working = True
                             print(f"Doctor {doc["name"]} works {shift.name}")
                         if not is_working:
-                            print(f"Doctor {doc["name"]} does not work {shift.name}")
-                    #else:
-                    #    print(f"ELSE Doctor {doc["name"]} does not work")
-
+                            print(f"Doctor {doc["name"]} does not work")
+        for week in self._work_weeks:
+            print(f"Week {week}")
+            for doc in juniors:
+                is_working = False
+                if self.value(self.dutyWeek[doc,week]):
+                    is_working = True
+                    print(f"Doctor {doc} works {ShiftList.DUTY_WEEK.name}")
+                if not is_working:
+                    print(f"Doctor {doc} does not work")
+                        
 
         if self._solution_count >= self._solution_limit:
             print(f"Stop search after {self._solution_limit} solutions")
@@ -229,12 +233,15 @@ def main() -> None:
     # create model
     model = scheduled_model(doctors,senior_cal.month,junior_cal.weeks,combos)
     model.create_variables()
+    # night duty
     model.one_employee_per_nightDuty()
-    model.one_employee_per_dutyWeek()
-    model.forbid_consecutive_nightDuty()
-    model.assign_dutyWeek()
     model.distribute_nightDuty_workload()
+    model.forbid_consecutive_nightDuty()
+    # duty week
+    model.one_employee_per_dutyWeek()
     model.distribute_dutyWeek_workload()
+    model.forbid_consecutive_dutyWeek()
+    model.assign_dutyWeek()
     #print(model)
 
     # create model
@@ -244,14 +251,14 @@ def main() -> None:
     # enumerate all solutions
     solver.parameters.enumerate_all_solutions = True
 
-    # Display the first five solutions.
-    solution_limit = 5
+    # display the first five solutions.
+    solution_limit = 2
     solution_printer = doctorsPartialSolutionPrinter(
-        model.shifts, doctors, senior_cal.month, combos, solution_limit)
+        model.shifts, model.dutyWeek, doctors, senior_cal.month, model._work_weeks, combos, solution_limit)
 
     # invoke the solver
     status = solver.solve(model, solution_printer)
-    #print(status)
+    print(status)
 
 
 if __name__ == "__main__":
