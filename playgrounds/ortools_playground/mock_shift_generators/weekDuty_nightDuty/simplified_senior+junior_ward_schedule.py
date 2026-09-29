@@ -1,25 +1,24 @@
 # SIMPLIFIED SENIOR AND JUNIOR DOCTORS SHIFT
 # each day there are TWO shifts: a day shift and a night shift
 # juniors work the day shift, seniors work the night shift                      ---> valid_combos()
-# there is a 30 days period schedule
+# there is a month long period schedule
 
 # constraints that are valid for both shift types:
-# each shift is done by 1 doctor                                                ---> constraint: one_employee_per_shift()
-# the workload is evenly distributed                                            ---> (1) distribute_senior_workload()
+# each shift is done by 1 doctor                                                ---> (1) one_employee_per_nightDuty()
+#                                                                                    (2) one_employee_per_dutyWeek()
+# the workload is evenly distributed                                            ---> (1) distribute_nightDuty_workload()
 #                                                                                    (2) distribute_dutyWeek_workload()
+# forbit consecutive shifts                                                     ---> (1) forbid_consecutive_nightDuty()
+#                                                                                    (2) forbid_consecutive_dutyWeek()
 
 # constraints that are valid for the day shift only:
-# junior doctors work Monday to Saturday included, hence six consecutive days.                  ---> constraint: assign_dutyWeek()
-# sunday is a rest day for all junior doctors (Sundays will become dayDuty in a later version). ---> valid_combos()
-# junior doctors do not work consecute shifts                                                   ---> forbid_consecutive_dutyWeek()
+# junior doctors work Monday to Saturday included, hence six consecutive days.                  ---> assign_dutyWeek()
+# Sunday is a rest day for all junior doctors (Sundays will become dayDuty in a later version). --->  obtained with valid_combos()
 # not more than 2 dutyWeeks per month                                                           ---> ? DO NOT IMPLEMENT: redundant
 # The one in the previous line does not prevent assigning 2 weeks to 2 people
 # and leaving a 3rd unassigned. Hence, we need a distribution of workload.
 # We probably don't need a "no more than 2 weeks per month" constraint because there are 4 weeks.
 # Though, it is good to look at exceptions of 5 weeks long months and how it combines with this handling of the planning
-
-# constraints that are valid for the night shift only:
-# senior doctors do not work consecutive shifts                                 ---> forbid_consecutive_nightDuty()
 
 # in this example the variables are saved in a dictionary
 
@@ -29,18 +28,17 @@ from ortools.sat.python import cp_model_helper
 from time_organizer import my_calendar
 from local_enums import SeniorityLevel, ShiftList
 
-# constant parameters that should belong to an enums kind of section
-
 def get_data():
+    # personnel
     doctors = [{"name":"eenie","seniority":SeniorityLevel.SENIOR.name},
                {"name":"meenie","seniority":SeniorityLevel.SENIOR.name},
                {"name":"miney","seniority":SeniorityLevel.SENIOR.name},
                {"name":"moe","seniority":SeniorityLevel.SENIOR.name},
                {"name":"tom","seniority":SeniorityLevel.SENIOR.name},
                {"name":"jerry","seniority":SeniorityLevel.SENIOR.name},
-               {"name":"schiavo1","seniority":SeniorityLevel.JUNIOR.name},
-               {"name":"schiavo2","seniority":SeniorityLevel.JUNIOR.name},
-               {"name":"schiavo3","seniority":SeniorityLevel.JUNIOR.name}]
+               {"name":"mini1","seniority":SeniorityLevel.JUNIOR.name},
+               {"name":"mini2","seniority":SeniorityLevel.JUNIOR.name},
+               {"name":"mini3","seniority":SeniorityLevel.JUNIOR.name}]
 
     # calendar
     year = 2026
@@ -73,7 +71,7 @@ def valid_combos(doctors,senior_month,junior_month):
 
 
 class scheduled_model(cp_model.CpModel):
-
+    """our model including variables and constraints"""
     def __init__(self, doctors,senior_cal,work_weeks,combos): 
         cp_model.CpModel.__init__(self)
         self._doctors = doctors
@@ -84,6 +82,7 @@ class scheduled_model(cp_model.CpModel):
         self.dutyWeek = {} # this one could even be _dutyWeek
 
     def create_variables(self):
+        """creates variable shifts and dutyWeek"""
         for combo in self._index:
             self.shifts[combo] = self.new_bool_var(f"shift_{combo[0]}_day{combo[1][0]}_{combo[2]}")
         juniors,s = seniority(self._doctors)
@@ -93,7 +92,7 @@ class scheduled_model(cp_model.CpModel):
         return self.shifts,self.dutyWeek
 
     def one_employee_per_nightDuty(self):
-        #constraint
+        """constraint: assigns one senior per night duty shift"""
         j,seniors = seniority(self._doctors)
         for day in self._senior_dates:
             # keep who_can_work for future FREE days handling
@@ -104,7 +103,7 @@ class scheduled_model(cp_model.CpModel):
         return
     
     def one_employee_per_dutyWeek(self):
-            #constraint
+            """constraint: assigns one junior per duty week shift Mon-Sat"""
             juniors,s = seniority(self._doctors)
             for week in self._work_weeks:
                 who_can_work = [self.dutyWeek[doc,week] for doc in juniors]
@@ -112,8 +111,7 @@ class scheduled_model(cp_model.CpModel):
             return
     
     def forbid_consecutive_nightDuty(self):
-        # constraint
-        # seniors cannot work consecutive night shifts
+        """constraint: seniors cannot work consecutive night shifts"""
         j,seniors = seniority(self._doctors)
         for doc in seniors:
             for day in range(len(self._senior_dates)-1):
@@ -122,8 +120,7 @@ class scheduled_model(cp_model.CpModel):
         return
 
     def forbid_consecutive_dutyWeek(self):
-        # constraint
-        # juniors cannot work consecutive duty weeks
+        """constraint: juniors cannot work consecutive duty weeks"""
         juniors,s = seniority(self._doctors)
         for doc in juniors:
             for n in range(len(self._work_weeks)-1):
@@ -131,9 +128,8 @@ class scheduled_model(cp_model.CpModel):
         return
 
     def assign_dutyWeek(self):
-        # constraint
-        # juniors work six consecutive days of duty, i.e. a dutyWeek
-        # NB: ALL variables should be contrained, otherwise the solver assign them to 1
+        """constraint: translates duty weeks into day shifts"""
+        # NB: ALL variables should be contrained, otherwise the solver assigns them to 1
         juniors,s = seniority(self._doctors)    
         for doc in juniors:
             for week in self._work_weeks:
@@ -146,6 +142,7 @@ class scheduled_model(cp_model.CpModel):
         return
 
     def distribute_nightDuty_workload(self):
+        """evenly distributs night duty shifts to seniors"""
         j,seniors = seniority(self._doctors)
         total_shifts = len(set([(day, shift) for d, day, shift in self._index if shift == ShiftList.NIGHT_DUTY.name]))
         min_shifts_per_doctor = total_shifts // len(seniors)
@@ -164,6 +161,7 @@ class scheduled_model(cp_model.CpModel):
         return    
 
     def distribute_dutyWeek_workload(self):
+        """evenly distributs duty weeks shifts to juniors"""
         juniors,s = seniority(self._doctors)
         total_shifts = len(self._work_weeks)
         min_shifts_per_doctor = total_shifts // len(juniors)
@@ -178,7 +176,7 @@ class scheduled_model(cp_model.CpModel):
         return
 
 class doctorsPartialSolutionPrinter(cp_model.CpSolverSolutionCallback):
-
+    """print intermediate solutions"""
     def __init__(self, shifts, dutyWeek, doctors, senior_cal, work_weeks, combos, limit):
         cp_model.CpSolverSolutionCallback.__init__(self)
         self._shifts = shifts
