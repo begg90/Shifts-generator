@@ -12,7 +12,12 @@ nr_junior = persistent_widget(
     st.number_input, 'How many juniors are there?', 'nr_junior',
     min_value=0, max_value=10, step=1)
 
+with st.form('doctor_info_form'):
+    st.write('Please enter the name of the doctor and his role in the team.')
+    st.text_input('Name', key='doctor_name')
+    st.selectbox('Role', options=['-', 'Senior', 'Junior'], key='doctor_role')
 
+    st.form_submit_button('Add doctor')
 
 if nr_senior == 1:
     st.write('In the team there is only one senior')
