@@ -71,12 +71,10 @@ def valid_combos(doctors,senior_month,junior_month):
 
 class scheduled_model(cp_model.CpModel):
     """our model including variables and constraints"""
-    def __init__(self, doctors,senior_cal,work_weeks,combos,valid_index:pd.MultiIndex): 
+    def __init__(self, doctors,work_weeks,valid_index:pd.MultiIndex): 
         cp_model.CpModel.__init__(self)
         self._doctors = doctors
-        self._senior_dates = senior_cal
         self._work_weeks = work_weeks
-        self._index = combos
         self._valid_index = valid_index
         self.shifts = {}
         self.dutyWeek = {} # this one could even be _dutyWeek
@@ -93,7 +91,6 @@ class scheduled_model(cp_model.CpModel):
 
     def one_employee_per_nightDuty(self):
         """constraint: assigns one senior per night duty shift"""
-        # NB: perhaps it can be optimized
         # make a cross section of those who can work nightDuty
         who_can_work = self.shifts.xs(ShiftList.NIGHT_DUTY.name, level = "shift_type")
         # for each day, only one doctor can work
@@ -145,23 +142,27 @@ class scheduled_model(cp_model.CpModel):
 
     def distribute_nightDuty_workload(self):
         """evenly distributs night duty shifts to seniors"""
-        j,seniors = seniority(self._doctors)
-        # NB, levshape returns a tuple representing the length of each level in the MultiIndex
-        # which is a better fit for total_shifts
-        total_shifts = len(set([(day, shift) for d, day, shift in self._index if shift == ShiftList.NIGHT_DUTY.name]))
-        min_shifts_per_doctor = total_shifts // len(seniors)
-        if total_shifts % len(seniors) == 0:
+        # number of dates for which a NIGHT_DUTY shift is required
+        # create a mask for indices where shift_type is NIGHT_DUTY
+        mask = self._valid_index.get_level_values(level = "shift_type") == ShiftList.NIGHT_DUTY.name
+        # from the masked index, count the unique number of dates
+        total_shifts = self._valid_index[mask].get_level_values(level = "date").nunique()
+        # number of doctors who can do the nightDuty shift
+        ndocs = self._valid_index[mask].get_level_values(level = "doctor").nunique()
+        min_shifts_per_doctor = total_shifts // ndocs
+        if total_shifts % ndocs == 0:
             max_shifts_per_doctor = min_shifts_per_doctor
         else:
             max_shifts_per_doctor = min_shifts_per_doctor + 1
-        for doc in seniors:
-            shifts_worked = sum( 
-                self.shifts[(doc,day,ShiftList.NIGHT_DUTY.name)] 
-                for day in self._senior_dates
-                if (doc,day,ShiftList.NIGHT_DUTY.name) in self._index
-            )    
-            self.add(min_shifts_per_doctor <= shifts_worked)     
-            self.add(shifts_worked <= max_shifts_per_doctor)
+
+        # cross section wrt NIGHT_DUTY
+        night_duty = self.shifts.xs( ShiftList.NIGHT_DUTY.name, level = "shift_type")
+        # groupby doctor, you are left with all dates when each doctor could work a night shift
+        # sum --> gives the night shifts worked by that doctor
+        shifts_worked = night_duty.groupby(level = "doctor").agg(sum)#sum()
+        for doc, workload in shifts_worked.items():
+            self.add(min_shifts_per_doctor <= workload)
+            self.add(workload <= max_shifts_per_doctor)
         return    
 
     def distribute_dutyWeek_workload(self):
@@ -238,11 +239,11 @@ def main() -> None:
     valid_index = pd.MultiIndex.from_tuples(combos, names= ["doctor","date","shift_type"])
     # NB if we want a multiindex for dutyWeek too it should be done with from_product
     # create model
-    model = scheduled_model(doctors,senior_cal.month,junior_cal.weeks,combos,valid_index)
+    model = scheduled_model(doctors,junior_cal.weeks,valid_index)
     model.create_variables()
     # night duty
     model.one_employee_per_nightDuty()
-    #model.distribute_nightDuty_workload()
+    model.distribute_nightDuty_workload()
     model.forbid_consecutive_nightDuty()
     # duty week
     #model.one_employee_per_dutyWeek()
