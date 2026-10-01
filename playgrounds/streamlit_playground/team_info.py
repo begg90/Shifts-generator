@@ -20,9 +20,6 @@ def add_team_member():
 add_team_member()   # initalize the form to add team members 
 
 st.write('Current team members:')
-if 'doctors' not in st.session_state:
-    st.session_state['doctors'] = []
-
 doctors_df = pd.DataFrame(st.session_state['doctors'], columns=['Name', 'Role'])
 st.dataframe(doctors_df)  # Display the DataFrame as a table
 
