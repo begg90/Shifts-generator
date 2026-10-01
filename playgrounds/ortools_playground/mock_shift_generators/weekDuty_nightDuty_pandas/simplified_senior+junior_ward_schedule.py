@@ -20,11 +20,11 @@
 # We probably don't need a "no more than 2 weeks per month" constraint because there are 4 weeks.
 # Though, it is good to look at exceptions of 5 weeks long months and how it combines with this handling of the planning
 
-# in this example the variables are saved in a dictionary
+# Here the variables are pandas series
 
 
 from ortools.sat.python import cp_model
-from ortools.sat.python import cp_model_helper
+import pandas as pd
 from time_organizer import my_calendar
 from local_enums import SeniorityLevel, ShiftList
 
@@ -61,30 +61,30 @@ def seniority(doctors):
     seniors = [doc["name"] for doc in doctors if doc["seniority"] == SeniorityLevel.SENIOR.name]
     return juniors, seniors
 
+# This one becomes a MultiIndex
 def valid_combos(doctors,senior_month,junior_month):
-    # NB: not a fan of this solution because combos cannot be accessed with readable keys but with indices
     juniors,seniors = seniority(doctors)
     # careful: combos must be hashable and lists aren't.
     combos = ([(doc,date,ShiftList.DUTY_WEEK.name) for doc in juniors for date in junior_month] + 
               [(doc,date,ShiftList.NIGHT_DUTY.name) for doc in seniors for date in senior_month])
     return combos
 
-
 class scheduled_model(cp_model.CpModel):
     """our model including variables and constraints"""
-    def __init__(self, doctors,senior_cal,work_weeks,combos): 
+    def __init__(self, doctors,senior_cal,work_weeks,combos,valid_index:pd.MultiIndex): 
         cp_model.CpModel.__init__(self)
         self._doctors = doctors
         self._senior_dates = senior_cal
         self._work_weeks = work_weeks
         self._index = combos
+        self._valid_index = valid_index
         self.shifts = {}
         self.dutyWeek = {} # this one could even be _dutyWeek
 
     def create_variables(self):
         """creates variable shifts and dutyWeek"""
-        for combo in self._index:
-            self.shifts[combo] = self.new_bool_var(f"shift_{combo[0]}_day{combo[1][0]}_{combo[2]}")
+        self.shifts = self.new_bool_var_series(name="shifts", index=self._valid_index)
+        #
         juniors,s = seniority(self._doctors)
         for doc in juniors:
             for week in self._work_weeks:
@@ -93,13 +93,12 @@ class scheduled_model(cp_model.CpModel):
 
     def one_employee_per_nightDuty(self):
         """constraint: assigns one senior per night duty shift"""
-        j,seniors = seniority(self._doctors)
-        for day in self._senior_dates:
-            # keep who_can_work for future FREE days handling
-            who_can_work = [
-                self.shifts[doc,day,ShiftList.NIGHT_DUTY.name] for doc in seniors if (doc,day,ShiftList.NIGHT_DUTY.name) in self._index
-            ]
-            self.add_exactly_one(who_can_work)
+        # NB: perhaps it can be optimized
+        # make a cross section of those who can work nightDuty
+        who_can_work = self.shifts.xs(ShiftList.NIGHT_DUTY.name, level = "shift_type")
+        # for each day, only one doctor can work
+        for _, doctors in who_can_work.groupby(level = "date"):
+            self.add_at_most_one(doctors)
         return
     
     def one_employee_per_dutyWeek(self):
@@ -112,11 +111,14 @@ class scheduled_model(cp_model.CpModel):
     
     def forbid_consecutive_nightDuty(self):
         """constraint: seniors cannot work consecutive night shifts"""
-        j,seniors = seniority(self._doctors)
-        for doc in seniors:
-            for day in range(len(self._senior_dates)-1):
-                self.add_at_most_one([self.shifts[doc,self._senior_dates[day],ShiftList.NIGHT_DUTY.name], 
-                                      self.shifts[doc,self._senior_dates[day+1],ShiftList.NIGHT_DUTY.name]])
+        # make a cross section --> doc, date, NIGHT_DUTY
+        # for each doc, check that consecutive dates are not assigned
+        who_can_work = self.shifts.xs(ShiftList.NIGHT_DUTY.name, level = "shift_type")
+        for _, date in who_can_work.groupby(level = "doctor"):
+            # make sure the dates are sorted: is this too cautious?
+            date = date.sort_index(level = "date")
+            for current_day,following_day in zip(date.iloc[:-1], date.iloc[1:]):
+                self.add_at_most_one([current_day,following_day])
         return
 
     def forbid_consecutive_dutyWeek(self):
@@ -144,6 +146,8 @@ class scheduled_model(cp_model.CpModel):
     def distribute_nightDuty_workload(self):
         """evenly distributs night duty shifts to seniors"""
         j,seniors = seniority(self._doctors)
+        # NB, levshape returns a tuple representing the length of each level in the MultiIndex
+        # which is a better fit for total_shifts
         total_shifts = len(set([(day, shift) for d, day, shift in self._index if shift == ShiftList.NIGHT_DUTY.name]))
         min_shifts_per_doctor = total_shifts // len(seniors)
         if total_shifts % len(seniors) == 0:
@@ -162,6 +166,8 @@ class scheduled_model(cp_model.CpModel):
 
     def distribute_dutyWeek_workload(self):
         """evenly distributs duty weeks shifts to juniors"""
+        # NB, levshape returns a tuple representing the length of each level in the MultiIndex
+        # which is a better fit for total_shifts
         juniors,s = seniority(self._doctors)
         total_shifts = len(self._work_weeks)
         min_shifts_per_doctor = total_shifts // len(juniors)
@@ -228,34 +234,37 @@ def main() -> None:
     doctors, senior_cal, junior_cal = get_data()
     # create index 
     combos = valid_combos(doctors,senior_cal.month,junior_cal.month)
+    # create a MultiIndex with combos
+    valid_index = pd.MultiIndex.from_tuples(combos, names= ["doctor","date","shift_type"])
+    # NB if we want a multiindex for dutyWeek too it should be done with from_product
     # create model
-    model = scheduled_model(doctors,senior_cal.month,junior_cal.weeks,combos)
+    model = scheduled_model(doctors,senior_cal.month,junior_cal.weeks,combos,valid_index)
     model.create_variables()
     # night duty
     model.one_employee_per_nightDuty()
-    model.distribute_nightDuty_workload()
+    #model.distribute_nightDuty_workload()
     model.forbid_consecutive_nightDuty()
     # duty week
-    model.one_employee_per_dutyWeek()
-    model.distribute_dutyWeek_workload()
-    model.forbid_consecutive_dutyWeek()
-    model.assign_dutyWeek()
+    #model.one_employee_per_dutyWeek()
+    #model.distribute_dutyWeek_workload()
+    #model.forbid_consecutive_dutyWeek()
+    #model.assign_dutyWeek()
     #print(model)
 
     # create model
     solver = cp_model.CpSolver()
     solver.parameters.linearization_level = 0
 
-    # enumerate all solutions
+    """ # enumerate all solutions
     solver.parameters.enumerate_all_solutions = True
 
     # display the first five solutions.
     solution_limit = 2
     solution_printer = doctorsPartialSolutionPrinter(
-        model.shifts, model.dutyWeek, doctors, senior_cal.month, model._work_weeks, combos, solution_limit)
+        model.shifts, model.dutyWeek, doctors, senior_cal.month, model._work_weeks, combos, solution_limit) """
 
     # invoke the solver
-    status = solver.solve(model, solution_printer)
+    status = solver.solve(model)#, solution_printer)
     print(status)
 
 
