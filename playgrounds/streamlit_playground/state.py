@@ -21,7 +21,7 @@ DEFAULT_STATE = {
     'nr_senior': 0,
     'nr_junior': 0,
     'chosen_year': 2026,
-    'chosen_month': 'January'
+    'chosen_month': 'January'    
 }
 
 def check_and_initialize_state():

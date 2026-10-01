@@ -1,30 +1,28 @@
 import streamlit as st
-from playgrounds.streamlit_playground.state import persistent_widget
+import pandas as pd
 
 
 ## Informazioni sui membri del reparto - INPUT & OUTPUT
 
-nr_senior = persistent_widget(
-    st.number_input, 'How many seniors are there?', 'nr_senior',
-    min_value=0, max_value=10, step=1)
+def store_team_member(name, role):
+    """Store the team member's name and role in the doctors list."""
+    st.session_state['doctors'].append([name, role])   # Store the updated list in session state
+    st.success(f'{role} {name} added successfully!')
 
-nr_junior = persistent_widget(
-    st.number_input, 'How many juniors are there?', 'nr_junior',
-    min_value=0, max_value=10, step=1)
+def add_team_member():
+    """Add a new team member."""
+    with st.form('team_info_form', width='content', clear_on_submit=True):
+        st.write('Please enter the name and the role of the team members:')
+        name = st.text_input('Name', key='doctor_name')
+        role = st.selectbox('Role', options=['-', 'Senior', 'Junior'], key='doctor_role')
+        st.form_submit_button('Add to the team', on_click=store_team_member, args=(name, role))
 
-with st.form('doctor_info_form'):
-    st.write('Please enter the name of the doctor and his role in the team.')
-    st.text_input('Name', key='doctor_name')
-    st.selectbox('Role', options=['-', 'Senior', 'Junior'], key='doctor_role')
+add_team_member()   # initalize the form to add team members 
 
-    st.form_submit_button('Add doctor')
+st.write('Current team members:')
+if 'doctors' not in st.session_state:
+    st.session_state['doctors'] = []
 
-if nr_senior == 1:
-    st.write('In the team there is only one senior')
-if nr_senior > 1:
-    st.write(f'The seniors in the team are: {st.session_state._nr_senior}')
+doctors_df = pd.DataFrame(st.session_state['doctors'], columns=['Name', 'Role'])
+st.dataframe(doctors_df)  # Display the DataFrame as a table
 
-if nr_junior == 1:
-    st.write('In the team there is only one junior')
-if nr_junior > 1:
-    st.write(f'The juniors in the team are: {st.session_state._nr_junior}')
