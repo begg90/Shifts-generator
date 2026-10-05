@@ -34,3 +34,4 @@ def reset_state():
     """Reset the session state to the default values."""
     for key, value in DEFAULT_STATE.items():
         st.session_state[key] = copy.deepcopy(value)
+    
