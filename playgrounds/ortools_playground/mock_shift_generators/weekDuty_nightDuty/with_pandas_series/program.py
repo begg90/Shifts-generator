@@ -14,19 +14,20 @@
 # constraints that are valid for the day shift only:
 # junior doctors work Monday to Saturday included, hence six consecutive days.                  ---> assign_dutyWeek()
 # Sunday is a rest day for all junior doctors (Sundays will become dayDuty in a later version). --->  obtained with valid_combos()
-# not more than 2 dutyWeeks per month                                                           ---> ? DO NOT IMPLEMENT: redundant
+# not more than 2 dutyWeeks per month                                                           ---> ? DO NOT IMPLEMENT: out of scope
 # The one in the previous line does not prevent assigning 2 weeks to 2 people
 # and leaving a 3rd unassigned. Hence, we need a distribution of workload.
-# We probably don't need a "no more than 2 weeks per month" constraint because there are 4 weeks.
-# Though, it is good to look at exceptions of 5 weeks long months and how it combines with this handling of the planning
+# the constraint "no more than 2 dutyWeeks per month" will be needed when we will have a way of
+# loading who has been asssigned to the week bridging previous and current month (out of scope)
 
 # Here the variables are pandas series
 
 
 from ortools.sat.python import cp_model
 import pandas as pd
-from weekDuty_nightDuty.common.time_organizer import my_calendar
+from weekDuty_nightDuty.common.calendar_manager import CalendarManager
 from weekDuty_nightDuty.common.local_enums import SeniorityLevel, ShiftList
+
 
 def get_data():
     # personnel
@@ -43,17 +44,12 @@ def get_data():
     # calendar
     year = 2026
     month = 9
-    senior_cal = my_calendar(year,month)
-    junior_cal = my_calendar(year,month)
-    senior_cal.get_month_asstrings()
-    senior_cal.month_cleanup()
-    junior_cal.get_weeks_asstrings()
-    junior_cal.weeks_cleanup()
-    junior_cal.weeks_removeSundays()
-    junior_cal.get_month_asstrings()
-    junior_cal.month_cleanup()
-    junior_cal.month_removeSundays()
-    return doctors, senior_cal, junior_cal
+
+    cal = CalendarManager(year,month)
+    shifts_cal = cal.dates() # complete month
+    dutyWeek_cal = cal.duty_weeks() # weeks 
+    
+    return doctors, shifts_cal, dutyWeek_cal
 
 
 def seniority(doctors):
@@ -61,10 +57,11 @@ def seniority(doctors):
     seniors = [doc["name"] for doc in doctors if doc["seniority"] == SeniorityLevel.SENIOR.name]
     return juniors, seniors
 
-def valid_combos(doctors,senior_month,junior_month):
+def valid_combos(doctors,senior_month:pd.DatetimeIndex):
     juniors,seniors = seniority(doctors)
     # careful: combos must be hashable and lists aren't.
-    combos = ([(doc,date,ShiftList.DUTY_WEEK.name) for doc in juniors for date in junior_month] + 
+    # NB. I would like it to be explicit that we are excluding SUNDAYS instead of using numbers
+    combos = ([(doc,date,ShiftList.DUTY_WEEK.name) for doc in juniors for date in senior_month if date.weekday() != 6] + 
               [(doc,date,ShiftList.NIGHT_DUTY.name) for doc in seniors for date in senior_month])
     return combos
 
@@ -100,9 +97,6 @@ class scheduled_model(cp_model.CpModel):
         """constraint: seniors cannot work consecutive night shifts"""
         duty_shifts = self.shifts.xs(ShiftList.NIGHT_DUTY.name, level = "shift_type")
         for _, date in duty_shifts.groupby(level = "doctor"):
-            # make sure the dates are sorted
-            # THIS is not sorted enough. The days belonging to the following month are not in the right place!!!
-            date = date.sort_index(level = "date")
             for current_day,following_day in zip(date.iloc[:-1], date.iloc[1:]):
                 self.add_at_most_one([current_day,following_day])
         return
@@ -118,8 +112,13 @@ class scheduled_model(cp_model.CpModel):
         """constraint: translates duty weeks into day shifts"""
         duty_shifts = self.shifts.xs(ShiftList.DUTY_WEEK.name, level = "shift_type")
         for (doc, week), duty_week in self.dutyWeek.items():
-            for date in week:
-                self.add(duty_shifts.loc[(doc, date)] == duty_week)
+            # I cannot iterate dates in week.
+            # I can retrieve the dates contained in week by using the fact it is a pd.Interval
+            this_week_shift = duty_shifts.loc[( doc,slice(week.left,week.right) )]
+            #print(len(this_week_shift)) # works!
+            for shift in this_week_shift:
+                self.add(shift == duty_week)
+
         return
 
     def distribute_nightDuty_workload(self):
@@ -169,12 +168,12 @@ class doctorsPartialSolutionPrinter(cp_model.CpSolverSolutionCallback):
         self._solution_limit = limit
 
     def on_solution_callback(self):
-        all_doctors = self._shifts.index.get_level_values(level = "doctor").unique()
-        dutyWeek_docs = self._dutyWeek.index.get_level_values(level = "doctor").unique()
+        all_doctors = self._shifts.index.get_level_values(level = "doctor").unique().sort_values()
+        dutyWeek_docs = self._dutyWeek.index.get_level_values(level = "doctor").unique().sort_values()
         self._solution_count += 1
         print(f"Solution {self._solution_count}")
         for day in self._work_month:
-            print(f"Day {day}")
+            print(f"\n Day {day}")
             for doc in all_doctors:     
                 for shift in ShiftList:
                     key = (doc,day,shift.name)
@@ -186,7 +185,7 @@ class doctorsPartialSolutionPrinter(cp_model.CpSolverSolutionCallback):
         # print dutyWeek
         week_number = 1 # ugly fix for now
         for week in self._work_weeks:
-            print(f"Week {week_number}")
+            print(f"\n Week {week_number}")
             for doc in dutyWeek_docs:
                 if self.value(self._dutyWeek.loc[doc,week]):
                     print(f"Doctor {doc} works {ShiftList.DUTY_WEEK.name}")
@@ -217,14 +216,14 @@ class doctorsPartialSolutionPrinter(cp_model.CpSolverSolutionCallback):
 
 def main() -> None:
     # data
-    doctors, senior_cal, dutyWeek_cal = get_data()
+    doctors, shifts_cal, dutyWeek_cal = get_data()
     # create index 
-    combos = valid_combos(doctors,senior_cal.month,dutyWeek_cal.month)
-    # create a MultiIndex with combos
-    valid_index = pd.MultiIndex.from_tuples(combos, names= ["doctor","date","shift_type"])
-    # create a MukltiIndex for the dutyWeek shift
+    combos = valid_combos(doctors,shifts_cal)
+    # create a sorted MultiIndex with combos
+    valid_index = pd.MultiIndex.from_tuples(combos, names= ["doctor","date","shift_type"]).sort_values()
+    # create a sorted MukltiIndex for the dutyWeek shift
     juniors,_ = seniority(doctors)
-    dutyWeek_index = pd.MultiIndex.from_product([juniors, dutyWeek_cal.weeks], names=["doctor", "week"])
+    dutyWeek_index = pd.MultiIndex.from_product([juniors, dutyWeek_cal], names=["doctor", "week"]).sort_values()
     # create model
     model = scheduled_model(valid_index,dutyWeek_index)
     model.create_variables()
@@ -249,7 +248,7 @@ def main() -> None:
     # display the first solution_limit solutions
     solution_limit = 1
     solution_printer = doctorsPartialSolutionPrinter(
-        model.shifts, model.dutyWeek, senior_cal.month, dutyWeek_cal.weeks,solution_limit)
+        model.shifts, model.dutyWeek, shifts_cal, dutyWeek_cal, solution_limit)
 
     # invoke the solver
     status = solver.solve(model, solution_printer)
