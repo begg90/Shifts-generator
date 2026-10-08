@@ -112,10 +112,9 @@ class scheduled_model(cp_model.CpModel):
         """constraint: translates duty weeks into day shifts"""
         duty_shifts = self.shifts.xs(ShiftList.DUTY_WEEK.name, level = "shift_type")
         for (doc, week), duty_week in self.dutyWeek.items():
-            # I cannot iterate dates in week.
-            # I can retrieve the dates contained in week by using the fact it is a pd.Interval
+            # week is an interval
+            # I can retrieve the dates of the week by using its extremes
             this_week_shift = duty_shifts.loc[( doc,slice(week.left,week.right) )]
-            #print(len(this_week_shift)) # works!
             for shift in this_week_shift:
                 self.add(shift == duty_week)
 
