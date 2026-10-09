@@ -38,11 +38,11 @@ class CalendarManager:
         whose Monday falls in this month."""
         cal = calendar.Calendar(firstweekday=0)
         weeks = cal.monthdatescalendar(self.year, self.month)
-        bounds = [(w[0], w[5]) for w in weeks if w[0].month == self.month]  # (Monday, Saturday)
-        mondays, saturdays = zip(*bounds)
-        return pd.IntervalIndex.from_arrays(
-            pd.to_datetime(mondays), pd.to_datetime(saturdays), closed="both"
-        )
+        bounds = [
+             (pd.to_datetime(w[0]), pd.to_datetime(w[5])) # (Monday, Saturday)
+             for w in weeks if w[0].month == self.month
+             ]  
+        return pd.IntervalIndex.from_tuples(bounds, closed="both")
 
     def duty_week_day_map(self) -> dict[pd.Interval, pd.DatetimeIndex]:
             return {
