@@ -27,42 +27,20 @@ import pandas as pd
 from weekDuty_nightDuty.common.calendar_manager import CalendarManager
 from weekDuty_nightDuty.common.local_enums import SeniorityLevel, ShiftList
 from weekDuty_nightDuty.common.solution_plotter import solution_plotter
-
-
-def get_data():
-    # personnel
-    doctors = [{"name":"eenie","seniority":SeniorityLevel.SENIOR.name},
-               {"name":"meenie","seniority":SeniorityLevel.SENIOR.name},
-               {"name":"miney","seniority":SeniorityLevel.SENIOR.name},
-               {"name":"moe","seniority":SeniorityLevel.SENIOR.name},
-               {"name":"tom","seniority":SeniorityLevel.SENIOR.name},
-               {"name":"jerry","seniority":SeniorityLevel.SENIOR.name},
-               {"name":"mini1","seniority":SeniorityLevel.JUNIOR.name},
-               {"name":"mini2","seniority":SeniorityLevel.JUNIOR.name},
-               {"name":"mini3","seniority":SeniorityLevel.JUNIOR.name}]
-
-    # calendar
-    year = 2026
-    month = 9
-
-    cal = CalendarManager(year,month)
-    shifts_cal = cal.dates() # complete month
-    dutyWeek_cal = cal.duty_weeks() # weeks 
-    
-    return doctors, shifts_cal, dutyWeek_cal
-
+from weekDuty_nightDuty.IO.input import get_data
+from weekDuty_nightDuty.IO.output import create_solution_dataframe
 
 def seniority(doctors):
     juniors = [doc["name"] for doc in doctors if doc["seniority"] == SeniorityLevel.JUNIOR.name]
     seniors = [doc["name"] for doc in doctors if doc["seniority"] == SeniorityLevel.SENIOR.name]
     return juniors, seniors
 
-def valid_combos(doctors,senior_month:pd.DatetimeIndex):
+def valid_combos(doctors,month:pd.DatetimeIndex):
     juniors,seniors = seniority(doctors)
     # careful: combos must be hashable and lists aren't.
     # NB. I would like it to be explicit that we are excluding SUNDAYS instead of using numbers
-    combos = ([(doc,date,ShiftList.DUTY_WEEK.name) for doc in juniors for date in senior_month if date.weekday() != 6] + 
-              [(doc,date,ShiftList.NIGHT_DUTY.name) for doc in seniors for date in senior_month])
+    combos = ([(doc,date,ShiftList.DUTY_WEEK.name) for doc in juniors for date in month if date.weekday() != 6] + 
+              [(doc,date,ShiftList.NIGHT_DUTY.name) for doc in seniors for date in month])
     return combos
 
 class scheduled_model(cp_model.CpModel):
@@ -215,9 +193,11 @@ class doctorsPartialSolutionPrinter(cp_model.CpSolverSolutionCallback):
 
 def main() -> None:
     # data
-    doctors, shifts_cal, dutyWeek_cal = get_data()
+    year = 2026
+    month = 9
+    doctors, month_cal, dutyWeek_cal = get_data(year,month)
     # create index 
-    combos = valid_combos(doctors,shifts_cal)
+    combos = valid_combos(doctors,month_cal)
     # create a sorted MultiIndex with combos
     valid_index = pd.MultiIndex.from_tuples(combos, names= ["doctor","date","shift_type"]).sort_values()
     # create a sorted MukltiIndex for the dutyWeek shift
@@ -246,7 +226,7 @@ def main() -> None:
     # display the first solution_limit solutions
     solution_limit = 1
     solution_printer = doctorsPartialSolutionPrinter(
-        model.shifts, model.dutyWeek, shifts_cal, dutyWeek_cal, solution_limit)
+        model.shifts, model.dutyWeek, month_cal, dutyWeek_cal, solution_limit)
 
     # invoke the solver
     status = solver.solve(model, solution_printer)
@@ -254,17 +234,7 @@ def main() -> None:
 
     # pandas series containing the current solution as a pd series, 
     # with the same index structure as the variable
-    solution = solver.values(model.shifts) # THIS should be the ultimate returned value. Is this set_solution()?
-
-    # this function will be moved to a more suitable file in a refactoring commit
-    def create_solution_dataframe(solution:pd.Series, shift_type):
-        shifts = solution.xs(shift_type, level = "shift_type")
-        rows = []
-        for (doc,date), shift_value in shifts.items():
-            if shift_value:
-                rows.append({"date": date, "doc": doc,})
-
-        return pd.DataFrame(rows).sort_values("date")
+    solution = solver.values(model.shifts) # THIS should be the value returned from solver/. Is this set_solution()?
 
     # create solution dataframes per shift type
     nightDuty_df = create_solution_dataframe(solution,ShiftList.NIGHT_DUTY.name)

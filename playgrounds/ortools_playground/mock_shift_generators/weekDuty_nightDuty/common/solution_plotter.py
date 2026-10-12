@@ -14,7 +14,7 @@ def solution_plotter(df:pd.DataFrame, file_name:str):
         legend_labels= "auto",
         start_date="2026-09-01",
         end_date="2026-09-30",
-        boxstyle="round",#"circle",
+        boxstyle="round",
         ax=ax,
     )
     #plt.show() # we need a gui for this (e.g. pyqt6)
