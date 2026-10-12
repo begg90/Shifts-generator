@@ -9,6 +9,7 @@ venv/
 # Python cache
 # ----------------------------------------
 __pycache__/
+*.py[oc]
 *.pyc
 *.pyo
 *.pyd
@@ -47,3 +48,4 @@ Thumbs.db
 build/
 dist/
 *.egg-info/
+wheels/

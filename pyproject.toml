@@ -1,14 +1,24 @@
-[build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
-
 [project]
-name = "shifts_generator"
+name = "shifts-generator"
 version = "0.1.0"
-description = "Shift generator"
+description = "A webapp to generate monthly shifts for teams of physicians in a hospital ward"
 readme = "README.md"
-requires-python = ">=3.10"
-dependencies = ["ortools"]
+authors = [
+    { name = "Sara", email = "sara.beggiato.90@gmail.com" },
+    { name = "Beatrice", email = "saggiorato.beatrice@gmail.com "}
+]
+requires-python = ">=3.14"
+dependencies = []
 
-[tool.setuptools.packages.find]
-where = ["src"]
+[project.scripts]
+shifts-generator = "shifts_generator:main"
+
+[build-system]
+requires = ["uv_build>=0.12.23,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "ortools>=9.15.6755",
+    "streamlit>=1.65.0",
+]
