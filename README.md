@@ -32,7 +32,7 @@ to install a specific version (for example 3.11 & 3.12)
 ```
 uv python install 3.11 3.12
 ```
-switch to <unistall> for the opposite 
+switch to unistall for the opposite 
 
 ## Install package
 
@@ -47,7 +47,7 @@ uv add --dev <package name>
 ```
 ## Uninstall package
 
-Simply exchange add with <remove> to unistall a package and remove it from all files (toml, lock) 
+Simply exchange add with remove to unistall a package and remove it from all files (toml, lock) 
 ```
 uv remove <package name>
 uv remove --dev <package name>
