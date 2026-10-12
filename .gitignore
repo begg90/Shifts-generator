@@ -51,5 +51,5 @@ dist/
 # ----------------------------------------
 # Development artifacts
 # ----------------------------------------
-playground/output/*
-!playground/output/README.md
+playgrounds/ortools_playground/mock_shift_generators/weekDuty_nightDuty/output/*
+!playgrounds/ortools_playground/mock_shift_generators/weekDuty_nightDuty/outputREADME.md
