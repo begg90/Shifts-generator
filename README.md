@@ -4,12 +4,13 @@ A better description will come when... Some of the actual application will be th
 
 # Instructions for devs
 1. Clone repo
-2. (Recommended) Set up environment on VS Code
-3. Install package
-4. (Optional) Install dev tools
-5. (Optional) Install webapp tools
-6. How to update dependencies installation
-7. How to run tests
+2. Checking uv
+3. Checking python versions
+4. Install package 
+5. Uninstall package
+6. Update a package
+7. Running scripts
+8. How to run tests
 
 ## Clone repo
 ```
@@ -17,69 +18,54 @@ git clone https://github.com/begg90/Shifts-generator
 cd Shifts-generator
 ```
 
-## Set up the environment on VS Code
-This is recommended to devs who need to install dev tools.
-### With pip
-#### Windows PowerShell
+## Checking uv
+To check that uv is available, and see the help menu with all available commands, type in the terminal
 ```
-python -m venv .venv
-.venv\Scripts\Activate.ps1
+uv 
 ```
-#### MacOS/Linux
+## Checking python versions
+To see all python versions and those available
 ```
-python -m venv .venv
-source .venv/bin/activate
+uv  python list
 ```
-
-### With uv
-#### Windows PowerShell
+to install a specific version (for example 3.11 & 3.12) 
 ```
-uv venv .venv
-.venv\Scripts\Activate.ps1
+uv python install 3.11 3.12
 ```
-#### MacOS/Linux
-```
-uv venv .venv
-source .venv/bin/activate
-```
-VS Code might not use the correct environment right away. In that case, do
-Ctrl + Shift + P --> python: Select interpreter --> <repo>/.venv/
+switch to <unistall> for the opposite 
 
 ## Install package
+
+To install a new package, update the toml, the lock file & the project environment:
 ```
-pip install -e . 
+uv add <package name>  
 ```
-or
+If it's only for the development of the project, it can include the flag:
+
 ```
-uv pip install -e . 
+uv add --dev <package name>
+```
+## Uninstall package
+
+Simply exchange add with <remove> to unistall a package and remove it from all files (toml, lock) 
+```
+uv remove <package name>
+uv remove --dev <package name>
 ```
 
-## Install dev tools
+## Update a package 
 ```
-pip install -r dev-requirements.txt
+uv lock --upgrade-package <package name>
 ```
-or
-```
-uv pip install -r dev-requirements.txt
-```
+This will attempt to update the specified package to the latest compatible version, while keeping the rest of the lockfile intact.
 
-## Install webapp tools
+
+## Running scripts
 ```
-pip install -r requirements.txt
+uv run example.py
 ```
-or
-```
-uv pip install -r requirements.txt
-```
+It can be used to run scripts or commands in the project environment. Before the invocation, uv will verify that the lockfile is up-to-date with the toml, and that the environment is up-to-date with the lockfile, keeping the project in-sync without the need for manual intervention. uv run guarantees that the command is run in an environment with all required dependencies at their locked versions ( if needed, we can use uv sync to manually update the environment).
 
 ## Running tests
 `pytest` or `pytest -v` or `python -m pytest -v`
 
-## How to update dependencies installation
-New packages need to be added to the project depending on their use.
-Dependencies used in the backend must be added to the ```.toml``` file. Dependencies used in the webapp must be added to ```requirements.txt```. Dependencies that are dev tools must be added to ```dev-requirements.txt```
-
-## How to deactivate the virtual environment
-Simply write 
- ```   deactivate ```
-into the terminal.
