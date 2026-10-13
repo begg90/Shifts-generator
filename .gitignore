@@ -47,3 +47,9 @@ Thumbs.db
 build/
 dist/
 *.egg-info/
+
+# ----------------------------------------
+# Development artifacts
+# ----------------------------------------
+playgrounds/ortools_playground/mock_shift_generators/weekDuty_nightDuty/output/*
+!playgrounds/ortools_playground/mock_shift_generators/weekDuty_nightDuty/outputREADME.md
