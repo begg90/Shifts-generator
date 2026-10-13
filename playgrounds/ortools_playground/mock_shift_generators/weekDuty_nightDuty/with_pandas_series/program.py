@@ -145,8 +145,8 @@ class doctorsPartialSolutionPrinter(cp_model.CpSolverSolutionCallback):
         self._solution_limit = limit
 
     def on_solution_callback(self):
-        all_doctors = self._shifts.index.get_level_values(level = "doctor").unique().sort_values().sort_values()
-        dutyWeek_docs = self._dutyWeek.index.get_level_values(level = "doctor").unique().sort_values().sort_values()
+        all_doctors = self._shifts.index.get_level_values(level = "doctor").unique().sort_values()
+        dutyWeek_docs = self._dutyWeek.index.get_level_values(level = "doctor").unique().sort_values()
         self._solution_count += 1
         print(f"Solution {self._solution_count}")
         for day in self._work_month:
