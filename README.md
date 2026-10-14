@@ -64,7 +64,7 @@ This will attempt to update the specified package to the latest compatible versi
 ```
 uv run example.py
 ```
-It can be used to run scripts or commands in the project environment. Before the invocation, uv will verify that the lockfile is up-to-date with the toml, and that the environment is up-to-date with the lockfile, keeping the project in-sync without the need for manual intervention. uv run guarantees that the command is run in an environment with all required dependencies at their locked versions ( if needed, we can use uv sync to manually update the environment).
+It can be used to run scripts or commands in the project environment. Before the invocation, uv will verify that the lockfile is up-to-date with the toml, and that the environment is up-to-date with the lockfile, keeping the project in-sync without the need for manual intervention. uv run guarantees that the command is run in an environment with all required dependencies at their locked versions (if needed, we can use uv sync to manually update the environment).
 
 ## Running tests
 `pytest` or `pytest -v` or `python -m pytest -v`

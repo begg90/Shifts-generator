@@ -5,7 +5,7 @@ description = "A webapp to generate monthly shifts for teams of physicians in a 
 readme = "README.md"
 authors = [
     { name = "Sara", email = "sara.beggiato.90@gmail.com" },
-    { name = "Beatrice", email = "saggiorato.beatrice@gmail.com "}
+    { name = "Beatrice", email = "saggiorato.beatrice@gmail.com"}
 ]
 requires-python = ">=3.14"
 dependencies = []
