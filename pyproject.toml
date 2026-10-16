@@ -20,6 +20,7 @@ build-backend = "uv_build"
 [dependency-groups]
 dev = [
     "ortools>=9.15.6755",
+    "pytest>=9.1.1",
     "ruff>=0.17.0",
     "streamlit>=1.65.0",
 ]

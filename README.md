@@ -3,69 +3,64 @@ Shifts-generator will be a webapp to generate monthly shifts for teams of physic
 A better description will come when... Some of the actual application will be there! Even this README is a very early work in progress...
 
 # Instructions for devs
-1. Clone repo
-2. Checking uv
-3. Checking python versions
-4. Install package 
-5. Uninstall package
-6. Update a package
-7. Running scripts
+1. uv basics
+2. Clone repo & set env
+3. Managing packages
+4. Running scripts 
+5. 
+6. 
+7. 
 8. How to run tests
 
-## Clone repo
+
+## uv basics
+To install uv:
+```
+pip install uv 
+```
+To check if it's available and see the help menu with all commands, type in the terminal
+```
+uv  # or
+uv --help
+```
+To see all python versions & to install specific ones (for example 3.11 & 3.12) 
+```
+uv python list
+uv python install 3.11 3.12
+```
+switch to uninstall for the opposite 
+
+
+## Clone repo & set env
 ```
 git clone https://github.com/begg90/Shifts-generator
 cd Shifts-generator
+uv sync
 ```
 
-## Checking uv
-To check that uv is available, and see the help menu with all available commands, type in the terminal
-```
-uv 
-```
-## Checking python versions
-To see all python versions and those available
-```
-uv  python list
-```
-to install a specific version (for example 3.11 & 3.12) 
-```
-uv python install 3.11 3.12
-```
-switch to unistall for the opposite 
+## Managing packages
 
-## Install package
-
-To install a new package, update the toml, the lock file & the project environment:
+To install a new package, update the toml, the lock file & the project environment, run the following (with the --dev flag if it's for development)
 ```
 uv add <package name>  
-```
-If it's only for the development of the project, it can include the flag:
-
-```
 uv add --dev <package name>
 ```
-## Uninstall package
-
-Simply exchange add with remove to unistall a package and remove it from all files (toml, lock) 
+Simply switch to remove to uninstall a package and remove it from all files (toml, lock) 
 ```
 uv remove <package name>
 uv remove --dev <package name>
 ```
-
-## Update a package 
+This will attempt to update the specified package in the lock file to the latest compatible version, while keeping the rest of the file intact
 ```
 uv lock --upgrade-package <package name>
 ```
-This will attempt to update the specified package to the latest compatible version, while keeping the rest of the lockfile intact.
-
 
 ## Running scripts
 ```
 uv run example.py
 ```
-It can be used to run scripts or commands in the project environment. Before the invocation, uv will verify that the lockfile is up-to-date with the toml, and that the environment is up-to-date with the lockfile, keeping the project in-sync without the need for manual intervention. uv run guarantees that the command is run in an environment with all required dependencies at their locked versions (if needed, we can use uv sync to manually update the environment).
+It can be used to run scripts or commands in the project environment. Before the invocation, uv will verify that the lockfile is up-to-date with the toml, and that the environment is up-to-date with the lockfile, keeping the project in-sync without the need for manual intervention. uv run guarantees that the command is run in an environment with all required dependencies at their locked versions (if needed, uv sync will manually update the environment).
 
 ## Running tests
-`pytest` or `pytest -v` or `python -m pytest -v`
+`uv run pytest` or `uv run pytest -v` or `uv run -m pytest -v`
 
