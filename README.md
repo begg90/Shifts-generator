@@ -19,16 +19,15 @@ pip install uv
 ```
 To check if it's available and see the help menu with all commands:
 ```
-uv  # or
+uv 
 uv --help
 ```
-To see all python versions & to install specific ones (for example 3.11 & 3.12) 
+To see all python versions & to install or uninstall specific ones (for example 3.11 & 3.12) 
 ```
 uv python list
 uv python install 3.11 3.12
+uv python uninstall 3.11 3.12
 ```
-switch to uninstall for the opposite 
-
 
 ## Clone repo & set env
 ```
@@ -61,7 +60,7 @@ uv run example.py
 It can be used to run scripts or commands in the project environment. Before the invocation, uv will verify that the lockfile is up-to-date with the toml, and that the environment is up-to-date with the lockfile, keeping the project in-sync without the need for manual intervention. uv run guarantees that the command is run in an environment with all required dependencies at their locked versions (if needed, uv sync will manually update the environment).
 
 ## Ruff commands
-Best practice: run both linter & formatter before a pull
+Best practice: run both linter & formatter before a pull. 
 To run the Ruff linter over the entire project or on a specified script
 ```
 uv run ruff check
@@ -71,7 +70,7 @@ To resolve the issues automatically
 ```
 uv run ruff check --fix
 ```
-To run the Ruff formatter (as tith the linter, it can be specified which file to format)
+To run the Ruff formatter (as with the linter, it can be specified which file to format)
 ```
 uv run ruff format
 ```
