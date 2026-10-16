@@ -7,10 +7,9 @@ A better description will come when... Some of the actual application will be th
 2. Clone repo & set env
 3. Managing packages
 4. Running scripts 
-5. 
-6. 
-7. 
-8. How to run tests
+5. Ruff commands
+6. Ignoring Errors
+7. How to run tests
 
 
 ## uv basics
@@ -18,7 +17,7 @@ To install uv:
 ```
 pip install uv 
 ```
-To check if it's available and see the help menu with all commands, type in the terminal
+To check if it's available and see the help menu with all commands:
 ```
 uv  # or
 uv --help
@@ -50,7 +49,7 @@ Simply switch to remove to uninstall a package and remove it from all files (tom
 uv remove <package name>
 uv remove --dev <package name>
 ```
-This will attempt to update the specified package in the lock file to the latest compatible version, while keeping the rest of the file intact
+`uv lock` will attempt to update the specified package in the lock file to the latest compatible version, while keeping the rest of the file intact
 ```
 uv lock --upgrade-package <package name>
 ```
@@ -60,6 +59,37 @@ uv lock --upgrade-package <package name>
 uv run example.py
 ```
 It can be used to run scripts or commands in the project environment. Before the invocation, uv will verify that the lockfile is up-to-date with the toml, and that the environment is up-to-date with the lockfile, keeping the project in-sync without the need for manual intervention. uv run guarantees that the command is run in an environment with all required dependencies at their locked versions (if needed, uv sync will manually update the environment).
+
+## Ruff commands
+Best practice: run both linter & formatter before a pull
+To run the Ruff linter over the entire project or on a specified script
+```
+uv run ruff check
+uv run ruff check src/file.py
+```
+To resolve the issues automatically 
+```
+uv run ruff check --fix
+```
+To run the Ruff formatter (as tith the linter, it can be specified which file to format)
+```
+uv run ruff format
+```
+Use `git diff` to see the differencies 
+
+## Ignoring errors
+If there is a line that needs to ignore the lint rules, add a # noqa comment. For example:
+```
+from typing import Iterable  # noqa
+```
+It can be specified which rule to ignore:
+```
+from typing import Iterable  # noqa: UP035
+```
+The same can be applied to an entire script, by adding the following at the beginning of a file: 
+```
+# ruff: noqa: UP035
+```
 
 ## Running tests
 `uv run pytest` or `uv run pytest -v` or `uv run -m pytest -v`
