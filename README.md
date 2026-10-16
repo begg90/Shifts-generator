@@ -17,10 +17,9 @@ To install uv:
 ```
 pip install uv 
 ```
-To check if it's available and see the help menu with all commands:
+To check if it's available and see the help menu with all commands (there's also a --help flag, but it works either way):
 ```
 uv 
-uv --help
 ```
 To see all python versions & to install or uninstall specific ones (for example 3.11 & 3.12) 
 ```
@@ -38,7 +37,7 @@ uv sync
 
 ## Managing packages
 
-To install a new package, update the toml, the lock file & the project environment, run the following (with the --dev flag if it's for development)
+To install a new package, update the toml, the lock file & the project environment (with the --dev flag if it's for development)
 ```
 uv add <package name>  
 uv add --dev <package name>
@@ -70,14 +69,15 @@ To resolve the issues automatically
 ```
 uv run ruff check --fix
 ```
-To run the Ruff formatter (as with the linter, it can be specified which file to format)
+To run the Ruff formatter on the project or on a script
 ```
 uv run ruff format
+uv run ruff format src/file.py
 ```
 Use `git diff` to see the differencies 
 
 ## Ignoring errors
-If there is a line that needs to ignore the lint rules, add a # noqa comment. For example:
+If there is a line that needs to ignore the lint rules, add a # noqa comment next to it. For example:
 ```
 from typing import Iterable  # noqa
 ```
@@ -85,7 +85,7 @@ It can be specified which rule to ignore:
 ```
 from typing import Iterable  # noqa: UP035
 ```
-The same can be applied to an entire script, by adding the following at the beginning of a file: 
+The same can be applied to an entire script, by adding the following line at the beginning of a file: 
 ```
 # ruff: noqa: UP035
 ```
