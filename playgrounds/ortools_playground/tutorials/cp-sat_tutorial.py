@@ -1,3 +1,5 @@
+# ruff: noqa
+
 # nurses shifts
 # each day there are 3 shifts of 8 hours
 # each shift is done by 1 nurse

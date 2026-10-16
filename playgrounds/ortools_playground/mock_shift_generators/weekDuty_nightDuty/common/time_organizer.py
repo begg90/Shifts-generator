@@ -1,3 +1,5 @@
+# ruff: noqa
+
 import calendar
 
 # get month as a list of tuples containing (yyyy,mm,dd,weekdaynumber)

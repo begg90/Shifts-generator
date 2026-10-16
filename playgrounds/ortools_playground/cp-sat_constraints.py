@@ -1,3 +1,5 @@
+# ruff: noqa
+
 """
 All of the possible cp-sat CONSTRAINTS:
 

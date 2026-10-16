@@ -1,3 +1,5 @@
+# ruff: noqa
+
 import streamlit as st
 from playgrounds.streamlit_playground.state import check_and_initialize_state, reset_state
 

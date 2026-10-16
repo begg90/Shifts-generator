@@ -1,3 +1,5 @@
+# ruff: noqa
+
 """
 All possible cp_model VARIABLES:
 

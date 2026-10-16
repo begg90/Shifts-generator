@@ -1,3 +1,5 @@
+# ruff: noqa
+
 # symbolic names - ... and where to find them?
 
 from enum import Enum, auto

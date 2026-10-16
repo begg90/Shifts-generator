@@ -1,3 +1,5 @@
+# ruff: noqa
+
 # SIMPLIFIED SENIOR AND JUNIOR DOCTORS SHIFT
 # each day there are TWO shifts: a day shift and a night shift
 # juniors work the day shift, seniors work the night shift                      ---> valid_combos()
