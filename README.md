@@ -51,6 +51,10 @@ uv remove --dev <package name>
 ```
 uv lock --upgrade-package <package name>
 ```
+To update all packages:
+```
+uv lock --upgrade
+```
 
 ## Running scripts
 ```
@@ -73,8 +77,7 @@ To run the Ruff formatter on the project or on a script
 ```
 uv run ruff format
 uv run ruff format src/file.py
-```
-Use `git diff` to see the differencies 
+``` 
 
 ## Ignoring errors
 If there is a line that needs to ignore the lint rules, add a # noqa comment next to it. For example:
