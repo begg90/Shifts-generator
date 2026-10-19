@@ -1,3 +1,5 @@
+# ruff: noqa
+
 from weekDuty_nightDuty.common.local_enums import SeniorityLevel
 from weekDuty_nightDuty.common.calendar_manager import CalendarManager
 

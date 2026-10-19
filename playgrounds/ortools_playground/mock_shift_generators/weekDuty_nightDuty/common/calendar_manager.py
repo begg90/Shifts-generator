@@ -1,3 +1,5 @@
+# ruff: noqa
+
 # a calendar manager
 
 # use datetime to handle atomic dates
