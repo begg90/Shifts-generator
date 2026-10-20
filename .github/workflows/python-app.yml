@@ -35,7 +35,7 @@ jobs:
       run: uv sync --locked --all-extras --dev
 
     - name: Lint with ruff (blocking)
-      run: uvx ruff check --output-format=github .  
+      run: uv run --locked ruff check --output-format=github .
 
     - name: Test with pytest
       run: uv run --with pytest --with pytest-cov pytest --cov-report "xml:coverage.xml" --cov=.
