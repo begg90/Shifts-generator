@@ -58,7 +58,7 @@ uv lock --upgrade
 
 ## Running scripts
 ```
-uv run example.py
+uv run <file_name>.py
 ```
 It can be used to run scripts or commands in the project environment. Before the invocation, uv will verify that the lockfile is up-to-date with the toml, and that the environment is up-to-date with the lockfile, keeping the project in-sync without the need for manual intervention. uv run guarantees that the command is run in an environment with all required dependencies at their locked versions (if needed, uv sync will manually update the environment).
 
