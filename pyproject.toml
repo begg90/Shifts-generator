@@ -1,7 +1,7 @@
 [project]
 name = "shifts-generator"
 version = "0.1.0"
-description = "A webapp to generate monthly shifts for teams of physicians in a hospital ward"
+description = "A library to generate monthly shifts for teams of physicians in a hospital ward"
 readme = "README.md"
 authors = [
     { name = "Sara", email = "sara.beggiato.90@gmail.com" },
@@ -25,5 +25,7 @@ dev = [
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
     "ruff>=0.17.0",
-    uv add --group frontend streamlit
+]
+frontend = [
+    "streamlit>=1.65.0",
 ]

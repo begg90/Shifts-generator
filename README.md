@@ -42,7 +42,7 @@ To install a new package, update the toml, the lock file & the project environme
 uv add <package name>  
 uv add --dev <package name>
 ```
-Simply switch to remove to uninstall a package and remove it from all files (toml, lock) 
+To uninstall a package and remove it from all files 
 ```
 uv remove <package name>
 uv remove --dev <package name>
