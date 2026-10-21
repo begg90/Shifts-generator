@@ -1,3 +1,5 @@
+# ruff: noqa
+
 import streamlit as st
 from playgrounds.streamlit_playground.state import persistent_widget
 

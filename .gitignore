@@ -9,8 +9,7 @@ venv/
 # Python cache
 # ----------------------------------------
 __pycache__/
-*.pyc
-*.pyo
+*.py[oc]
 *.pyd
 
 # ----------------------------------------
@@ -47,6 +46,8 @@ Thumbs.db
 build/
 dist/
 *.egg-info/
+wheels/
+
 
 # ----------------------------------------
 # Development artifacts

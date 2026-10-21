@@ -3,83 +3,96 @@ Shifts-generator will be a webapp to generate monthly shifts for teams of physic
 A better description will come when... Some of the actual application will be there! Even this README is a very early work in progress...
 
 # Instructions for devs
-1. Clone repo
-2. (Recommended) Set up environment on VS Code
-3. Install package
-4. (Optional) Install dev tools
-5. (Optional) Install webapp tools
-6. How to update dependencies installation
+1. uv basics
+2. Clone repo & set env
+3. Managing packages
+4. Running scripts 
+5. Ruff commands
+6. Ignoring Errors
 7. How to run tests
 
-## Clone repo
+
+## uv basics
+To install uv:
+```
+pip install uv 
+```
+To check if it's available and see the help menu with all commands (there's also a --help flag, but it works either way):
+```
+uv 
+```
+To see all python versions & to install or uninstall specific ones (for example 3.11 & 3.12) 
+```
+uv python list
+uv python install 3.11 3.12
+uv python uninstall 3.11 3.12
+```
+
+## Clone repo & set env
 ```
 git clone https://github.com/begg90/Shifts-generator
 cd Shifts-generator
+uv sync
 ```
 
-## Set up the environment on VS Code
-This is recommended to devs who need to install dev tools.
-### With pip
-#### Windows PowerShell
+## Managing packages
+
+To install a new package, update the toml, the lock file & the project environment (with the --dev flag if it's for development)
 ```
-python -m venv .venv
-.venv\Scripts\Activate.ps1
+uv add <package name>  
+uv add --dev <package name>
 ```
-#### MacOS/Linux
+To uninstall a package and remove it from all files 
 ```
-python -m venv .venv
-source .venv/bin/activate
+uv remove <package name>
+uv remove --dev <package name>
+```
+`uv lock` will attempt to update the specified package in the lock file to the latest compatible version, while keeping the rest of the file intact
+```
+uv lock --upgrade-package <package name>
+```
+To update all packages:
+```
+uv lock --upgrade
 ```
 
-### With uv
-#### Windows PowerShell
+## Running scripts
 ```
-uv venv .venv
-.venv\Scripts\Activate.ps1
+uv run <file_name>.py
 ```
-#### MacOS/Linux
-```
-uv venv .venv
-source .venv/bin/activate
-```
-VS Code might not use the correct environment right away. In that case, do
-Ctrl + Shift + P --> python: Select interpreter --> <repo>/.venv/
+It can be used to run scripts or commands in the project environment. Before the invocation, uv will verify that the lockfile is up-to-date with the toml, and that the environment is up-to-date with the lockfile, keeping the project in-sync without the need for manual intervention. uv run guarantees that the command is run in an environment with all required dependencies at their locked versions (if needed, uv sync will manually update the environment).
 
-## Install package
+## Ruff commands
+Best practice: run both linter & formatter before a pull. 
+To run the Ruff linter over the entire project or on a specified script
 ```
-pip install -e . 
+uv run ruff check
+uv run ruff check src/file.py
 ```
-or
+To resolve the issues automatically 
 ```
-uv pip install -e . 
+uv run ruff check --fix
 ```
+To run the Ruff formatter on the project or on a script
+```
+uv run ruff format
+uv run ruff format src/file.py
+``` 
 
-## Install dev tools
+## Ignoring errors
+If there is a line that needs to ignore the lint rules, add a # noqa comment next to it. For example:
 ```
-pip install -r dev-requirements.txt
+from typing import Iterable  # noqa
 ```
-or
+It can be specified which rule to ignore:
 ```
-uv pip install -r dev-requirements.txt
+from typing import Iterable  # noqa: UP035
 ```
-
-## Install webapp tools
+The same can be applied to an entire script, by adding the following line at the beginning of a file: 
 ```
-pip install -r requirements.txt
-```
-or
-```
-uv pip install -r requirements.txt
+# ruff: noqa: UP035
 ```
 
 ## Running tests
-`pytest` or `pytest -v` or `python -m pytest -v`
+`uv run pytest` or `uv run pytest -v` or `uv run -m pytest -v`
 
-## How to update dependencies installation
-New packages need to be added to the project depending on their use.
-Dependencies used in the backend must be added to the ```.toml``` file. Dependencies used in the webapp must be added to ```requirements.txt```. Dependencies that are dev tools must be added to ```dev-requirements.txt```
-
-## How to deactivate the virtual environment
-Simply write 
- ```   deactivate ```
-into the terminal.

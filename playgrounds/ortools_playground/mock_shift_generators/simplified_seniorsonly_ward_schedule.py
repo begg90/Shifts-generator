@@ -1,3 +1,5 @@
+# ruff: noqa
+
 # SIMPLIFIED SENIOR DOCTORS SHIFT
 # each day there is ONE shift (a night shift)
 # each shift is done by 1 doctor

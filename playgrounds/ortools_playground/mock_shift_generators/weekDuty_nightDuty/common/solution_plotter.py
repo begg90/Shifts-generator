@@ -1,3 +1,4 @@
+# ruff: noqa
 # a simple plotter for the solution
 
 import matplotlib.pyplot as plt

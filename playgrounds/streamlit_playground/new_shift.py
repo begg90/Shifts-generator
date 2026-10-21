@@ -1,3 +1,5 @@
+# ruff: noqa
+
 import streamlit as st
 import pandas as pd
 import calendar as cal

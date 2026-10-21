@@ -1,3 +1,5 @@
+# ruff: noqa
+
 """ Where we try out Streamlit and we get familiar with some of its functions. To see the end result, 
 in terminal run: streamlit run your_script.py """
 

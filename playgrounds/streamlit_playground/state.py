@@ -1,3 +1,5 @@
+# ruff: noqa
+
 import streamlit as st
 
 # Working on saving the state of the app, so that the user can navigate between pages without losing the data he has already entered.
