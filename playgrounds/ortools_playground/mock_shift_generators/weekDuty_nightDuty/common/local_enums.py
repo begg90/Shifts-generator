@@ -7,6 +7,7 @@ class SeniorityLevel(Enum):
     JUNIOR = auto()
     SENIOR = auto()
 
+
 class ShiftList(Enum):
     DUTY_WEEK = auto()
     NIGHT_DUTY = auto()
