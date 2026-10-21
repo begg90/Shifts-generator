@@ -1,7 +1,7 @@
 # ruff: noqa
 
-from weekDuty_nightDuty.common.local_enums import SeniorityLevel
-from weekDuty_nightDuty.common.calendar_manager import CalendarManager
+from ..common.local_enums import SeniorityLevel
+from ..common.calendar_manager import CalendarManager
 
 def get_data(year,month):
     # personnel

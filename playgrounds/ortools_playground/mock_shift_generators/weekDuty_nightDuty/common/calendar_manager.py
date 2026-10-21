@@ -67,18 +67,3 @@ class CalendarManager:
             weeks = cal.monthdatescalendar(self.year, self.month)
             mondays = [w[0] for w in weeks if w[0].month == self.month]
             return pd.PeriodIndex(mondays, freq="W-SUN") # freq"W-SUN" means weekly, starting and excluding Sunday. Hence it starts on MONDAY but it finishes a week later... on Sunday!
-    
-    
-# EXAMPLE that will be removed, only here to make it easy to explore the calendar manager
-# uncomment to visualize 
-""" year = 2026
-month = 9
-cal = CalendarManager(year,month)
-print(cal.dates())
-print(cal.dates()[0].weekday())
-print(cal.duty_weeks())
-print(cal.duty_weeks()[0])
-print(type(cal.duty_weeks()[0]))
-
-print(cal.duty_weeks()[0].left)
-print(cal.duty_weeks()[0].right) """

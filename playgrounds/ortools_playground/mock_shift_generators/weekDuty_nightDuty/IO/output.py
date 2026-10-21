@@ -13,7 +13,7 @@ def create_solution_dataframe(solution:pd.Series, shift_type):
 
 
 # TO DO:
-# create an inteeface that has solution and shift_type as paramenters, 
+# create an interface that has solution and shift_type as paramenters, 
 # and create_solution_dataframe as method.
 # than create two classes, one for the dict and one for the series solution 
 # that have a create_solution_dataframe method 

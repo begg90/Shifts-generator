@@ -26,11 +26,10 @@
 
 from ortools.sat.python import cp_model
 import pandas as pd
-from weekDuty_nightDuty.common.calendar_manager import CalendarManager
-from weekDuty_nightDuty.common.local_enums import SeniorityLevel, ShiftList
-from weekDuty_nightDuty.common.solution_plotter import solution_plotter
-from weekDuty_nightDuty.IO.input import get_data
-from weekDuty_nightDuty.IO.output import create_solution_dataframe
+from ..common.local_enums import SeniorityLevel, ShiftList
+from ..common.solution_plotter import solution_plotter
+from ..IO.output import create_solution_dataframe
+from ..IO.input import get_data
 
 def seniority(doctors):
     juniors = [doc["name"] for doc in doctors if doc["seniority"] == SeniorityLevel.JUNIOR.name]
