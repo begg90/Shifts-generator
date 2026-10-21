@@ -1,6 +1,6 @@
-# ruff: noqa
 
 import pandas as pd
+
 
 def create_solution_dataframe(solution:pd.Series, shift_type):
         shifts = solution.xs(shift_type, level = "shift_type")

@@ -1,5 +1,3 @@
-# ruff: noqa
-
 import calendar
 
 # get month as a list of tuples containing (yyyy,mm,dd,weekdaynumber)
@@ -24,12 +22,12 @@ class my_calendar(calendar.Calendar):
 
     def __repr__(self):
         lines = [
-            f"my_calendar(",
+            "my_calendar(",
             f"  year={self._year},",
             f"  month={self._month},",
             f"  calendar_weeks={self.weeks},",
             f"  calendar_days={self.month}",
-            f")"
+            ")"
         ]
         return "\n".join(lines)
 

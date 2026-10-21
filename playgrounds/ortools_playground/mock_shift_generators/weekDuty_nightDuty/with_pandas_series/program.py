@@ -1,5 +1,4 @@
-# ruff: noqa
-
+# ruff: noqa: PERF102
 # SIMPLIFIED SENIOR AND JUNIOR DOCTORS SHIFT
 # each day there are TWO shifts: a day shift and a night shift
 # juniors work the day shift, seniors work the night shift                      ---> valid_combos()
@@ -24,12 +23,14 @@
 
 # Here the variables are pandas series
 
-from ortools.sat.python import cp_model
 import pandas as pd
+from ortools.sat.python import cp_model
+
 from ..common.local_enums import SeniorityLevel, ShiftList
 from ..common.solution_plotter import solution_plotter
-from ..IO.output import create_solution_dataframe
 from ..IO.input import get_data
+from ..IO.output import create_solution_dataframe
+
 
 def seniority(doctors):
     juniors = [doc["name"] for doc in doctors if doc["seniority"] == SeniorityLevel.JUNIOR.name]
@@ -64,13 +65,11 @@ class scheduled_model(cp_model.CpModel):
         who_can_work = self.shifts.xs(ShiftList.NIGHT_DUTY.name, level = "shift_type")
         for _, doctors in who_can_work.groupby(level = "date"):
             self.add_exactly_one(doctors)
-        return
 
     def one_employee_per_dutyWeek(self):
         """constraint: assigns one junior per duty week shift Mon-Sat"""
         for _, doctors in self.dutyWeek.groupby(level = "week"):
             self.add_exactly_one(doctors)
-        return
 
     def forbid_consecutive_nightDuty(self):
         """constraint: seniors cannot work consecutive night shifts"""
@@ -78,14 +77,12 @@ class scheduled_model(cp_model.CpModel):
         for _, date in duty_shifts.groupby(level = "doctor"):
             for current_day,following_day in zip(date.iloc[:-1], date.iloc[1:]):
                 self.add_at_most_one([current_day,following_day])
-        return
 
     def forbid_consecutive_dutyWeek(self):
         """constraint: juniors cannot work consecutive duty weeks"""
         for _, week in self.dutyWeek.groupby(level = "doctor"):
             for current_week, following_week in zip(week.iloc[:-1],week.iloc[1:]):
                 self.add_at_most_one([current_week,following_week])
-        return
 
     def assign_dutyWeek(self):
         """constraint: translates duty weeks into day shifts"""
@@ -97,7 +94,6 @@ class scheduled_model(cp_model.CpModel):
             for shift in this_week_shift:
                 self.add(shift == duty_week)
 
-        return
 
     def distribute_nightDuty_workload(self):
         """evenly distributs night duty shifts to seniors"""
@@ -116,7 +112,6 @@ class scheduled_model(cp_model.CpModel):
         for doc, workload in shifts_worked.items():
             self.add(min_shifts_per_doctor <= workload)
             self.add(workload <= max_shifts_per_doctor)
-        return
 
     def distribute_dutyWeek_workload(self):
         """evenly distributs duty weeks shifts to juniors"""
@@ -132,7 +127,6 @@ class scheduled_model(cp_model.CpModel):
         for doc,workload in shifts_worked.items():
             self.add(min_shifts_per_doctor <= workload)
             self.add(workload <= max_shifts_per_doctor)
-        return
 
 class doctorsPartialSolutionPrinter(cp_model.CpSolverSolutionCallback):
     """print intermediate solutions"""
@@ -171,7 +165,7 @@ class doctorsPartialSolutionPrinter(cp_model.CpSolverSolutionCallback):
                     print(f"Doctor {doc} X")
             week_number += 1
 
-        print(f"\n STATISTICS:\n")
+        print("\n STATISTICS:\n")
         night_duty = self._shifts.xs( ShiftList.NIGHT_DUTY.name, level = "shift_type")
         shifts_worked = night_duty.groupby(level = "doctor").agg(sum)
         for doc, _ in shifts_worked.items():

@@ -1,8 +1,5 @@
-# ruff: noqa
-
 """simple solve"""
 from ortools.sat.python import cp_model
-from ortools.sat.python import cp_model_helper
 
 """
 VarArraySolutionPrinter MUST inherit from cp_model.CpSolverSolutionCallback.

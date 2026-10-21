@@ -1,5 +1,3 @@
-# ruff: noqa
-
 """
 All possible cp_model VARIABLES:
 
@@ -11,9 +9,8 @@ pd.Series 	new_int_var_series (self, str name, pd.Index index, Union[IntegralT, 
 pd.Series 	new_bool_var_series (self, str name, pd.Index index)
 """
 
-from ortools.sat.python import cp_model
-from ortools.sat.python import cp_model_helper
 import pandas as pd
+from ortools.sat.python import cp_model
 
 # create model
 model = cp_model.CpModel()

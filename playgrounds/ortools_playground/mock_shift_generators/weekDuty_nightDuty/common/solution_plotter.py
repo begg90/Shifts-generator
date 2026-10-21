@@ -1,9 +1,9 @@
-# ruff: noqa
 # a simple plotter for the solution
 
-import matplotlib.pyplot as plt
 import dayplot as dp
+import matplotlib.pyplot as plt
 import pandas as pd
+
 
 def solution_plotter(df:pd.DataFrame, file_name:str):
 

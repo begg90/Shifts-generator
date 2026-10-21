@@ -1,5 +1,3 @@
-# ruff: noqa
-
 # nurses shifts
 # each day there are 3 shifts of 8 hours
 # each shift is done by 1 nurse
@@ -7,6 +5,7 @@
 # there is a 3 days period schedule
 
 from ortools.sat.python import cp_model
+
 # from ortools.sat.python import cp_model_helper ## is this the helper for this package?
 
 # Data

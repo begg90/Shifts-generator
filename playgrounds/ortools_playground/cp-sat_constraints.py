@@ -1,5 +1,3 @@
-# ruff: noqa
-
 """
 All of the possible cp-sat CONSTRAINTS:
 
@@ -65,8 +63,6 @@ Constraint 	add_cumulative (self, Iterable[IntervalVar] intervals, Iterable[Line
 """
 
 from ortools.sat.python import cp_model
-from ortools.sat.python import cp_model_helper
-import pandas as pd
 
 # create model
 model = cp_model.CpModel()

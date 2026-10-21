@@ -1,8 +1,7 @@
-# ruff: noqa
-
 # symbolic names - ... and where to find them?
 
 from enum import Enum, auto
+
 
 class SeniorityLevel(Enum):
     JUNIOR = auto()

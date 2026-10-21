@@ -1,7 +1,6 @@
-# ruff: noqa
-
-from ..common.local_enums import SeniorityLevel
 from ..common.calendar_manager import CalendarManager
+from ..common.local_enums import SeniorityLevel
+
 
 def get_data(year,month):
     # personnel

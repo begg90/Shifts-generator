@@ -1,5 +1,3 @@
-# ruff: noqa
-
 # SIMPLIFIED SENIOR DOCTORS SHIFT
 # each day there is ONE shift (a night shift)
 # each shift is done by 1 doctor
@@ -10,6 +8,7 @@
 # in this example the variables are saved in a dictionary
 
 from ortools.sat.python import cp_model
+
 #from ortools.sat.python import cp_model_helper
 
 def get_data():
@@ -46,7 +45,6 @@ class scheduled_model(cp_model.CpModel):
         for day in self._dates:
             for shift in self._shift_types:
                 self.add_exactly_one(self.shifts[doc,day,shift] for doc in self._doctors)
-        return
 
     def forbid_consecutive_shifts(self):
         # constraint
@@ -54,7 +52,6 @@ class scheduled_model(cp_model.CpModel):
             for shift in self._shift_types:
                 for day in range(len(self._dates)-1):
                     self.add_at_most_one([self.shifts[doc,self._dates[day],shift],self.shifts[doc,self._dates[day+1],shift]])
-        return            
 
     def evenly_distribute_workload(self):
         # constraint
@@ -70,7 +67,6 @@ class scheduled_model(cp_model.CpModel):
                     shifts_worked.append(self.shifts[((doc,day,shift))])
             self.add(min_shifts_per_doctor <= sum(shifts_worked))     
             self.add(sum(shifts_worked) <= max_shifts_per_doctor)
-        return    
 
 
 class doctorsPartialSolutionPrinter(cp_model.CpSolverSolutionCallback):

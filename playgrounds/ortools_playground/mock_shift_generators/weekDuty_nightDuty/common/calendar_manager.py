@@ -1,5 +1,3 @@
-# ruff: noqa
-
 # a calendar manager
 
 # use datetime to handle atomic dates
@@ -19,9 +17,11 @@
 # are those that begin in the selected month (i.e. excluding weeks bridging previous and current month, 
 # including weeks bridging current and following month)
 
-import datetime
 import calendar
+import datetime
+
 import pandas as pd
+
 
 class CalendarManager:
     def __init__(self, year: int, month: int):
