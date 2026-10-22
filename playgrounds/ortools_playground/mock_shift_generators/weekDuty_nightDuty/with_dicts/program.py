@@ -161,7 +161,7 @@ class scheduled_model(cp_model.CpModel):
     def assign_dutyWeek(self):
         """constraint: translates duty weeks into day shifts"""
         # NB: ALL variables should be contrained, otherwise the solver assigns them to 1
-        juniors = seniority(self._doctors)
+        juniors,_ = seniority(self._doctors)
         for doc in juniors:
             for week in self._work_weeks:
                 for date in week:
