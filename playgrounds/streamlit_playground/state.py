@@ -1,3 +1,5 @@
+import copy
+
 import streamlit as st
 
 # Working on saving the state of the app, so that the user can navigate between pages without losing the data he has already entered.
@@ -21,8 +23,7 @@ def persistent_widget(widget, label, key, **kwargs):
 
 DEFAULT_STATE = {
     "logged_in": False,
-    "nr_senior": 0,
-    "nr_junior": 0,
+    "doctors": [],
     "chosen_year": 2026,
     "chosen_month": "January",
 }
@@ -33,9 +34,11 @@ def check_and_initialize_state():
     for key, value in DEFAULT_STATE.items():
         if key not in st.session_state:
             st.session_state[key] = value
+            st.session_state[key] = copy.deepcopy(value)
 
 
 def reset_state():
     """Reset the session state to the default values."""
     for key, value in DEFAULT_STATE.items():
         st.session_state[key] = value
+        st.session_state[key] = copy.deepcopy(value)
