@@ -1,5 +1,3 @@
-# ruff: noqa
-
 # SIMPLIFIED SENIOR AND JUNIOR DOCTORS SHIFT
 # each day there are TWO shifts: a day shift and a night shift
 # juniors work the day shift, seniors work the night shift                      ---> valid_combos()
@@ -26,26 +24,30 @@
 
 
 from ortools.sat.python import cp_model
-from weekDuty_nightDuty.common.time_organizer import my_calendar
+
 from weekDuty_nightDuty.common.local_enums import SeniorityLevel, ShiftList
+from weekDuty_nightDuty.common.time_organizer import my_calendar
+
 
 def get_data():
     # personnel
-    doctors = [{"name":"eenie","seniority":SeniorityLevel.SENIOR.name},
-               {"name":"meenie","seniority":SeniorityLevel.SENIOR.name},
-               {"name":"miney","seniority":SeniorityLevel.SENIOR.name},
-               {"name":"moe","seniority":SeniorityLevel.SENIOR.name},
-               {"name":"tom","seniority":SeniorityLevel.SENIOR.name},
-               {"name":"jerry","seniority":SeniorityLevel.SENIOR.name},
-               {"name":"mini1","seniority":SeniorityLevel.JUNIOR.name},
-               {"name":"mini2","seniority":SeniorityLevel.JUNIOR.name},
-               {"name":"mini3","seniority":SeniorityLevel.JUNIOR.name}]
+    doctors = [
+        {"name": "eenie", "seniority": SeniorityLevel.SENIOR.name},
+        {"name": "meenie", "seniority": SeniorityLevel.SENIOR.name},
+        {"name": "miney", "seniority": SeniorityLevel.SENIOR.name},
+        {"name": "moe", "seniority": SeniorityLevel.SENIOR.name},
+        {"name": "tom", "seniority": SeniorityLevel.SENIOR.name},
+        {"name": "jerry", "seniority": SeniorityLevel.SENIOR.name},
+        {"name": "mini1", "seniority": SeniorityLevel.JUNIOR.name},
+        {"name": "mini2", "seniority": SeniorityLevel.JUNIOR.name},
+        {"name": "mini3", "seniority": SeniorityLevel.JUNIOR.name},
+    ]
 
     # calendar
     year = 2026
     month = 9
-    senior_cal = my_calendar(year,month)
-    junior_cal = my_calendar(year,month)
+    senior_cal = my_calendar(year, month)
+    junior_cal = my_calendar(year, month)
     senior_cal.get_month_asstrings()
     senior_cal.month_cleanup()
     junior_cal.get_weeks_asstrings()
@@ -58,112 +60,147 @@ def get_data():
 
 
 def seniority(doctors):
-    juniors = [doc["name"] for doc in doctors if doc["seniority"] == SeniorityLevel.JUNIOR.name]
-    seniors = [doc["name"] for doc in doctors if doc["seniority"] == SeniorityLevel.SENIOR.name]
+    juniors = [
+        doc["name"] for doc in doctors if doc["seniority"] == SeniorityLevel.JUNIOR.name
+    ]
+    seniors = [
+        doc["name"] for doc in doctors if doc["seniority"] == SeniorityLevel.SENIOR.name
+    ]
     return juniors, seniors
 
-def valid_combos(doctors,senior_month,junior_month):
+
+def valid_combos(doctors, senior_month, junior_month):
     # NB: not a fan of this solution because combos cannot be accessed with readable keys but with indices
-    juniors,seniors = seniority(doctors)
+    juniors, seniors = seniority(doctors)
     # careful: combos must be hashable and lists aren't.
-    combos = ([(doc,date,ShiftList.DUTY_WEEK.name) for doc in juniors for date in junior_month] + 
-              [(doc,date,ShiftList.NIGHT_DUTY.name) for doc in seniors for date in senior_month])
+    combos = [
+        (doc, date, ShiftList.DUTY_WEEK.name)
+        for doc in juniors
+        for date in junior_month
+    ] + [
+        (doc, date, ShiftList.NIGHT_DUTY.name)
+        for doc in seniors
+        for date in senior_month
+    ]
     return combos
 
 
 class scheduled_model(cp_model.CpModel):
     """our model including variables and constraints"""
-    def __init__(self, doctors,senior_cal,work_weeks,combos): 
+
+    def __init__(self, doctors, senior_cal, work_weeks, combos):
         cp_model.CpModel.__init__(self)
         self._doctors = doctors
         self._senior_dates = senior_cal
         self._work_weeks = work_weeks
         self._index = combos
         self.shifts = {}
-        self.dutyWeek = {} # this one could even be _dutyWeek
+        self.dutyWeek = {}  # this one could even be _dutyWeek
 
     def create_variables(self):
         """creates variable shifts and dutyWeek"""
         for combo in self._index:
-            self.shifts[combo] = self.new_bool_var(f"shift_{combo[0]}_day{combo[1][0]}_{combo[2]}")
-        juniors,s = seniority(self._doctors)
+            self.shifts[combo] = self.new_bool_var(
+                f"shift_{combo[0]}_day{combo[1][0]}_{combo[2]}"
+            )
+        juniors, _ = seniority(self._doctors)
         for doc in juniors:
             for week in self._work_weeks:
-                self.dutyWeek[(doc,week)] = self.new_bool_var(f"dutyWeek_{doc}_{self._work_weeks.index(week)}")      
-        return self.shifts,self.dutyWeek
+                self.dutyWeek[(doc, week)] = self.new_bool_var(
+                    f"dutyWeek_{doc}_{self._work_weeks.index(week)}"
+                )
+        return self.shifts, self.dutyWeek
 
     def one_employee_per_nightDuty(self):
         """constraint: assigns one senior per night duty shift"""
-        j,seniors = seniority(self._doctors)
+        _, seniors = seniority(self._doctors)
         for day in self._senior_dates:
             # keep who_can_work for future FREE days handling
             who_can_work = [
-                self.shifts[doc,day,ShiftList.NIGHT_DUTY.name] for doc in seniors if (doc,day,ShiftList.NIGHT_DUTY.name) in self._index
+                self.shifts[doc, day, ShiftList.NIGHT_DUTY.name]
+                for doc in seniors
+                if (doc, day, ShiftList.NIGHT_DUTY.name) in self._index
             ]
             self.add_exactly_one(who_can_work)
-        return
-    
+
     def one_employee_per_dutyWeek(self):
-            """constraint: assigns one junior per duty week shift Mon-Sat"""
-            juniors,s = seniority(self._doctors)
-            for week in self._work_weeks:
-                who_can_work = [self.dutyWeek[doc,week] for doc in juniors]
-                self.add_exactly_one(who_can_work)
-            return
-    
+        """constraint: assigns one junior per duty week shift Mon-Sat"""
+        juniors, _ = seniority(self._doctors)
+        for week in self._work_weeks:
+            who_can_work = [self.dutyWeek[doc, week] for doc in juniors]
+            self.add_exactly_one(who_can_work)
+
     def forbid_consecutive_nightDuty(self):
         """constraint: seniors cannot work consecutive night shifts"""
-        j,seniors = seniority(self._doctors)
+        _, seniors = seniority(self._doctors)
         for doc in seniors:
-            for day in range(len(self._senior_dates)-1):
-                self.add_at_most_one([self.shifts[doc,self._senior_dates[day],ShiftList.NIGHT_DUTY.name], 
-                                      self.shifts[doc,self._senior_dates[day+1],ShiftList.NIGHT_DUTY.name]])
-        return
+            for day in range(len(self._senior_dates) - 1):
+                self.add_at_most_one(
+                    [
+                        self.shifts[
+                            doc, self._senior_dates[day], ShiftList.NIGHT_DUTY.name
+                        ],
+                        self.shifts[
+                            doc, self._senior_dates[day + 1], ShiftList.NIGHT_DUTY.name
+                        ],
+                    ]
+                )
 
     def forbid_consecutive_dutyWeek(self):
         """constraint: juniors cannot work consecutive duty weeks"""
-        juniors,s = seniority(self._doctors)
+        juniors, _ = seniority(self._doctors)
         for doc in juniors:
-            for n in range(len(self._work_weeks)-1):
-                self.add_at_most_one([self.dutyWeek[(doc, self._work_weeks[n])], self.dutyWeek[(doc, self._work_weeks[n+1])]])
-        return
+            for n in range(len(self._work_weeks) - 1):
+                self.add_at_most_one(
+                    [
+                        self.dutyWeek[(doc, self._work_weeks[n])],
+                        self.dutyWeek[(doc, self._work_weeks[n + 1])],
+                    ]
+                )
 
     def assign_dutyWeek(self):
         """constraint: translates duty weeks into day shifts"""
         # NB: ALL variables should be contrained, otherwise the solver assigns them to 1
-        juniors,s = seniority(self._doctors)    
+        juniors, _ = seniority(self._doctors)
         for doc in juniors:
             for week in self._work_weeks:
                 for date in week:
                     # an example using only_enforce_if
-                    #self.add(self.shifts[doc,date,ShiftList.DUTY_WEEK.name] == 1).only_enforce_if(self.dutyWeek[doc,week])
-                    #self.add(self.shifts[doc,date,ShiftList.DUTY_WEEK.name] == 0).only_enforce_if(self.dutyWeek[doc,week].Not())
-                    # a clearer expression of the above 
-                    self.add(self.shifts[doc,date,ShiftList.DUTY_WEEK.name] == self.dutyWeek[doc,week])
-        return
+                    # self.add(self.shifts[doc,date,ShiftList.DUTY_WEEK.name] == 1).only_enforce_if(self.dutyWeek[doc,week])
+                    # self.add(self.shifts[doc,date,ShiftList.DUTY_WEEK.name] == 0).only_enforce_if(self.dutyWeek[doc,week].Not())
+                    # a clearer expression of the above
+                    self.add(
+                        self.shifts[doc, date, ShiftList.DUTY_WEEK.name]
+                        == self.dutyWeek[doc, week]
+                    )
 
     def distribute_nightDuty_workload(self):
         """evenly distributs night duty shifts to seniors"""
-        j,seniors = seniority(self._doctors)
-        total_shifts = len(set([(day, shift) for d, day, shift in self._index if shift == ShiftList.NIGHT_DUTY.name]))
+        _, seniors = seniority(self._doctors)
+        total_shifts = len(
+            {
+                (day, shift)
+                for d, day, shift in self._index
+                if shift == ShiftList.NIGHT_DUTY.name
+            }
+        )
         min_shifts_per_doctor = total_shifts // len(seniors)
         if total_shifts % len(seniors) == 0:
             max_shifts_per_doctor = min_shifts_per_doctor
         else:
             max_shifts_per_doctor = min_shifts_per_doctor + 1
         for doc in seniors:
-            shifts_worked = sum( 
-                self.shifts[(doc,day,ShiftList.NIGHT_DUTY.name)] 
+            shifts_worked = sum(
+                self.shifts[(doc, day, ShiftList.NIGHT_DUTY.name)]
                 for day in self._senior_dates
-                if (doc,day,ShiftList.NIGHT_DUTY.name) in self._index
-            )    
-            self.add(min_shifts_per_doctor <= shifts_worked)     
+                if (doc, day, ShiftList.NIGHT_DUTY.name) in self._index
+            )
+            self.add(min_shifts_per_doctor <= shifts_worked)
             self.add(shifts_worked <= max_shifts_per_doctor)
-        return    
 
     def distribute_dutyWeek_workload(self):
         """evenly distributs duty weeks shifts to juniors"""
-        juniors,s = seniority(self._doctors)
+        juniors, _ = seniority(self._doctors)
         total_shifts = len(self._work_weeks)
         min_shifts_per_doctor = total_shifts // len(juniors)
         if total_shifts % len(juniors) == 0:
@@ -171,14 +208,17 @@ class scheduled_model(cp_model.CpModel):
         else:
             max_shifts_per_doctor = min_shifts_per_doctor + 1
         for doc in juniors:
-            shifts_worked = sum(self.dutyWeek[(doc,week)] for week in self._work_weeks)
-            self.add(min_shifts_per_doctor <= shifts_worked)     
+            shifts_worked = sum(self.dutyWeek[(doc, week)] for week in self._work_weeks)
+            self.add(min_shifts_per_doctor <= shifts_worked)
             self.add(shifts_worked <= max_shifts_per_doctor)
-        return
+
 
 class doctorsPartialSolutionPrinter(cp_model.CpSolverSolutionCallback):
     """print intermediate solutions"""
-    def __init__(self, shifts, dutyWeek, doctors, senior_cal, work_weeks, combos, limit):
+
+    def __init__(
+        self, shifts, dutyWeek, doctors, senior_cal, work_weeks, combos, limit
+    ):
         cp_model.CpSolverSolutionCallback.__init__(self)
         self._shifts = shifts
         self.dutyWeek = dutyWeek
@@ -190,16 +230,16 @@ class doctorsPartialSolutionPrinter(cp_model.CpSolverSolutionCallback):
         self._solution_limit = limit
 
     def on_solution_callback(self):
-        juniors,seniors = seniority(self._doctors)
+        juniors, _ = seniority(self._doctors)
         self._solution_count += 1
         print(f"Solution {self._solution_count}")
         for day in self._dates:
             print(f"Day {day}")
-            for doc in self._doctors:    
+            for doc in self._doctors:
                 is_working = False
                 for shift in ShiftList:
-                    if (doc["name"],day,shift.name) in self._index:
-                        if self.value(self._shifts[(doc["name"],day,shift.name)]):
+                    if (doc["name"], day, shift.name) in self._index:
+                        if self.value(self._shifts[(doc["name"], day, shift.name)]):
                             is_working = True
                             print(f"Doctor {doc['name']} works {shift.name}")
                         if not is_working:
@@ -208,29 +248,27 @@ class doctorsPartialSolutionPrinter(cp_model.CpSolverSolutionCallback):
             print(f"Week {week}")
             for doc in juniors:
                 is_working = False
-                if self.value(self.dutyWeek[doc,week]):
+                if self.value(self.dutyWeek[doc, week]):
                     is_working = True
                     print(f"Doctor {doc} works {ShiftList.DUTY_WEEK.name}")
                 if not is_working:
                     print(f"Doctor {doc} does not work")
-                        
 
         if self._solution_count >= self._solution_limit:
             print(f"Stop search after {self._solution_limit} solutions")
             self.stop_search()
-    
+
     def solutionCount(self):
         return self._solution_count
-        
 
 
 def main() -> None:
     # data
     doctors, senior_cal, junior_cal = get_data()
-    # create index 
-    combos = valid_combos(doctors,senior_cal.month,junior_cal.month)
+    # create index
+    combos = valid_combos(doctors, senior_cal.month, junior_cal.month)
     # create model
-    model = scheduled_model(doctors,senior_cal.month,junior_cal.weeks,combos)
+    model = scheduled_model(doctors, senior_cal.month, junior_cal.weeks, combos)
     model.create_variables()
     # night duty
     model.one_employee_per_nightDuty()
@@ -241,7 +279,7 @@ def main() -> None:
     model.distribute_dutyWeek_workload()
     model.forbid_consecutive_dutyWeek()
     model.assign_dutyWeek()
-    #print(model)
+    # print(model)
 
     # create model
     solver = cp_model.CpSolver()
@@ -253,7 +291,14 @@ def main() -> None:
     # display the first five solutions.
     solution_limit = 2
     solution_printer = doctorsPartialSolutionPrinter(
-        model.shifts, model.dutyWeek, doctors, senior_cal.month, model._work_weeks, combos, solution_limit)
+        model.shifts,
+        model.dutyWeek,
+        doctors,
+        senior_cal.month,
+        model._work_weeks,
+        combos,
+        solution_limit,
+    )
 
     # invoke the solver
     status = solver.solve(model, solution_printer)

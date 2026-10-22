@@ -1,8 +1,7 @@
-# ruff: noqa
-
 """simple solve"""
+
 from ortools.sat.python import cp_model
-from ortools.sat.python import cp_model_helper
+
 
 def simple_sat_program():
     """minimal CP-SAT example"""
@@ -11,7 +10,7 @@ def simple_sat_program():
 
     # create the variables
     num_vals = 3
-    L = 0 
+    L = 0
     R = num_vals - 1
     x = model.new_int_var(L, R, "x")
     y = model.new_int_var(L, R, "y")
@@ -31,6 +30,5 @@ def simple_sat_program():
     else:
         print("no solution found")
 
+
 simple_sat_program()
-
-
