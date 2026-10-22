@@ -62,8 +62,8 @@ class scheduled_model(cp_model.CpModel):
         cp_model.CpModel.__init__(self)
         self._valid_index = valid_index
         self._dutyWeek_index = dutyWeek_index
-        self.shifts = {}
-        self.dutyWeek = {}  # this one could even be _dutyWeek
+        self.shifts : pd.Series
+        self.dutyWeek : pd.Series # this one could even be _dutyWeek
 
     def create_variables(self):
         """creates variable shifts and dutyWeek"""
@@ -188,21 +188,17 @@ class doctorsPartialSolutionPrinter(cp_model.CpSolverSolutionCallback):
                     print(f"Doctor {doc} X")
             week_number += 1
 
-        print("\n STATISTICS:\n")
-        night_duty = self._shifts.xs(ShiftList.NIGHT_DUTY.name, level="shift_type")
-        shifts_worked = night_duty.groupby(level="doctor").agg(sum)
-        for doc, _ in shifts_worked.items():
-            shifts_number = self.value(shifts_worked[doc])
-            print(
-                f"Doctor {doc}'s number of {ShiftList.NIGHT_DUTY.name} shifts: {shifts_number} "
-            )
+        print(f"\n STATISTICS:\n")
+        night_duty = self._shifts.xs( ShiftList.NIGHT_DUTY.name, level = "shift_type")
+        shifts_worked = night_duty.groupby(level = "doctor").agg(sum)
+        for doc, shifts_number in shifts_worked.items():
+            #shifts_number = self.value(shifts_worked[doc])
+            print(f"Doctor {doc}'s number of {ShiftList.NIGHT_DUTY.name} shifts: {shifts_number} ")
 
-        shifts_worked = self._dutyWeek.groupby(level="doctor").agg(sum)
-        for doc, _ in shifts_worked.items():
-            shifts_number = self.value(shifts_worked[doc])
-            print(
-                f"Doctor {doc}'s number of {ShiftList.DUTY_WEEK.name} shifts: {shifts_number} "
-            )
+        shifts_worked = self._dutyWeek.groupby(level = "doctor").agg(sum)
+        for doc, shifts_number in shifts_worked.items():
+            #shifts_number = self.value(shifts_worked[doc])
+            print(f"Doctor {doc}'s number of {ShiftList.DUTY_WEEK.name} shifts: {shifts_number} ")
 
         if self._solution_count >= self._solution_limit:
             print(f"\n Stop search after {self._solution_limit} solutions")
