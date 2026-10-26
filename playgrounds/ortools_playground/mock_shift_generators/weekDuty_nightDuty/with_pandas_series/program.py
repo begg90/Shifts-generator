@@ -100,7 +100,7 @@ class scheduled_model(cp_model.CpModel):
     def assign_dutyWeek(self):
         """constraint: translates duty weeks into day shifts"""
         duty_shifts = self.shifts.xs(ShiftList.DUTY_WEEK.name, level="shift_type")
-        for (doc, week), duty_week in self.dutyWeek.items():
+        for (doc, week), duty_week in self.dutyWeek.items(): # pyrefly: ignore[not-iterable]  # pandas-stubs types MultiIndex labels as Hashable
             # week is an interval
             # I can retrieve the dates of the week by using its extremes
             this_week_shift = duty_shifts.loc[(doc, slice(week.left, week.right))]
