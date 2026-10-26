@@ -4,7 +4,7 @@ import pandas as pd
 def create_solution_dataframe(solution: pd.Series, shift_type):
     shifts = solution.xs(shift_type, level="shift_type")
     rows = []
-    for (doc, date), shift_value in shifts.items():
+    for (doc, date), shift_value in shifts.items(): # pyright: ignore[reportGeneralTypeIssues] # pandas-stubs types MultiIndex labels as Hashable
         if shift_value:
             rows.append(
                 {

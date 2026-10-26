@@ -9,8 +9,8 @@ def solution_plotter(df: pd.DataFrame, file_name: str):
 
     fig, ax = plt.subplots()
     dp.calendar(
-        dates=df["date"],
-        values=df["doc"],
+        dates=df["date"], # pyright: ignore[reportArgumentType] # dayplot expects a list, but dataframes work at runtime
+        values=df["doc"], # pyright: ignore[reportArgumentType] # dayplot expects a list, but dataframes work at runtime
         legend=True,
         legend_labels="auto",
         start_date="2026-09-01",
