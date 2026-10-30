@@ -1,8 +1,8 @@
-# This level is general and does not contain any ORTools 
+# This level is general and does not contain any ORTools
 # contains employee, shifts, schedule, constraint (abstract)
 # This way it can be tested without invoking the solver
 
-""" # example of code snippet
+"""# example of code snippet
 from dataclasses import dataclass, field
 from typing import Set
 from shifts_generator.domain.enums import Seniority
@@ -26,4 +26,4 @@ class Employee:
         if self.max_hours_per_week <= 0:
             raise ValueError("max_hours_per_week must be positive")
         if not isinstance(self.seniority, Seniority):
-            raise ValueError("seniority must be a Seniority enum value") """
+            raise ValueError("seniority must be a Seniority enum value")"""
