@@ -2,7 +2,7 @@
 # contains employee, shifts, schedule, constraint (abstract)
 # This way it can be tested without invoking the solver
 
-""" # example of code snippet
+"""# example of code snippet
 from dataclasses import dataclass, field
 from typing import Set
 from shifts_generator.domain.enums import Seniority

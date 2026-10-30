@@ -9,8 +9,8 @@ def solution_plotter(df: pd.DataFrame, file_name: str):
 
     fig, ax = plt.subplots()
     dp.calendar(
-        dates=df["date"], # pyrefly: ignore[bad-argument-type] # dayplot hint too narrow, docs pass a Series
-        values=df["doc"], # pyrefly: ignore[bad-argument-type] # dayplot hint too narrow, docs pass a Series
+        dates=df["date"],  # pyrefly: ignore[bad-argument-type] # dayplot hint too narrow, docs pass a Series
+        values=df["doc"],  # pyrefly: ignore[bad-argument-type] # dayplot hint too narrow, docs pass a Series
         legend=True,
         legend_labels="auto",
         start_date="2026-09-01",
