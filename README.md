@@ -110,7 +110,7 @@ next to the interested line. To ignore all errors in a file, type
 ```
 # pyrefly: ignore-errors
 ```
-at the very begginning of the file.
+at the very beginning of the file.
 
 Type checking can be disabled in sub-folders. Modify the .toml by creating a sub-group
 ```
