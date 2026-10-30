@@ -1,4 +1,4 @@
-# This level is general and does not contain any ORTools 
+# This level is general and does not contain any ORTools
 # contains employee, shifts, schedule, constraint (abstract)
 # This way it can be tested without invoking the solver
 
