@@ -22,6 +22,8 @@ dev = [
     "dayplot>=0.6.0",
     "matplotlib>=3.11.2",
     "ortools>=9.15.6755",
+    "pandas-stubs>=3.1.0.261029",
+    "pyrefly>=1.4.0",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
     "ruff>=0.17.0",
@@ -60,3 +62,20 @@ max-args = 10            # PLR0913
 max-statements = 75      # PLR0915  ~ proxy for "LOC per function"
 max-public-methods = 15  # PLR0904
 max-nested-blocks = 5    # PLR1702  ~ your nesting-depth goal
+[tool.pyrefly]
+project-includes = [
+    "**/*.py*",
+    "**/*.ipynb",
+]
+preset = "strict"
+
+[[tool.pyrefly.sub-config]]
+# apply this config to all files in `playgounds`
+matches = "playgrounds/**"
+
+# disable `missing-import` errors in `playgounds`
+[tool.pyrefly.sub-config.errors]
+missing-import = false
+implicit-any-parameter = false
+bad-argument-type = false
+implicit-any-lambda = false
