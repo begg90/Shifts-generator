@@ -37,6 +37,9 @@ jobs:
     - name: Lint with ruff (blocking)
       run: uv run --locked ruff check --output-format=github .
 
+    - name: Type check
+      run: uv run pyrefly check
+
     - name: Test with pytest
       run: uv run --with pytest --with pytest-cov pytest --cov-report "xml:coverage.xml" --cov=.
 
