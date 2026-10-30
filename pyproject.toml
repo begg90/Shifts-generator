@@ -43,7 +43,7 @@ preset = "strict"
 # apply this config to all files in `playgounds`
 matches = "playgrounds/**"
 
-# disable `missing-import` errors in `playgounds`
+# disable errors in `playgounds`
 [tool.pyrefly.sub-config.errors]
 missing-import = false
 implicit-any-parameter = false
