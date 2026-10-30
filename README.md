@@ -8,7 +8,7 @@ A better description will come when... Some of the actual application will be th
 3. Managing packages
 4. Running scripts 
 5. Ruff commands
-6. Ignoring Errors
+6. Running the type checker
 7. How to run tests
 
 
@@ -79,7 +79,7 @@ uv run ruff format
 uv run ruff format src/file.py
 ``` 
 
-## Ignoring errors
+### Ignoring errors
 If there is a line that needs to ignore the lint rules, add a # noqa comment next to it. For example:
 ```
 from typing import Iterable  # noqa
@@ -92,7 +92,53 @@ The same can be applied to an entire script, by adding the following line at the
 ```
 # ruff: noqa: UP035
 ```
-
+## Running the type checker
+To run Pyrefly over the project
+```
+uv run pyrefly check
+```
+or over a file
+```
+uv run pyrefly check <file_name>
+```
+### Ignoring errors
+To ignore errors by line, type 
+```
+# pyrefly: ignore[<error)type>] # <brief explanation for other devs>
+```
+next to the interested line. To ignore all errors in a file, type
+```
+# pyrefly: ignore-errors
+```
+at the very beggining of the file.
+Type checking can be disabled in sub-folders. Modify the .toml by creating a sub-group
+```
+[[tool.pyrefly.sub-config]]
+matches = "<folder_name>/**"
+```
+and disabling specific errors
+```
+[tool.pyrefly.sub-config.errors]
+<error_type> = false
+```
+The errors of the whole codeline can be ignored with 
+```
+uv run pyrefly suppress
+```
+This will place  suppression comments on the line before each error. Alternatively, these errors can be saved in a baseline file and Pyrefly will automatically ignore them.
+See the Pyrefly documentation for further instructions.
+### Automatic type annotation
+Pyrefly can infer type of unannotated code by the way it is used in the current codebase. This should not replace manual review or manual annotation, as the method is experimental and it relies entirely on the current code rather than on the intention behind it. To use this tool, type
+```
+uv run pyrefly infer <path_to_file>
+```
+or
+```
+uv run pyrefly infer <path_to_folder>
+```
+### Other tools
+Pyrefly can measure how much the code is measured with annotated types, which can be used in CI if it fall under a treshold. 
+Pyrefly can also generate stubs files for new modules, provided the code is fully annotated. We could use both tools in the future, this is a written reminder.
 ## Running tests
 `uv run pytest` or `uv run pytest -v` or `uv run -m pytest -v`
 

@@ -32,13 +32,13 @@ jobs:
         python-version: "3.14"
 
     - name: Install the project
-      run: uv sync --locked --all-extras --dev
+      run: uv sync --locked --all-extras
 
     - name: Lint with ruff (blocking)
       run: uv run --locked ruff check --output-format=github .
 
     - name: Type check
-      run: uv run pyrefly check
+      run: uv run --locked pyrefly check --output-format=github .
 
     - name: Test with pytest
       run: uv run --with pytest --with pytest-cov pytest --cov-report "xml:coverage.xml" --cov=.
