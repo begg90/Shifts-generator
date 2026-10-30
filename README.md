@@ -110,7 +110,8 @@ next to the interested line. To ignore all errors in a file, type
 ```
 # pyrefly: ignore-errors
 ```
-at the very beggining of the file.
+at the very begginning of the file.
+
 Type checking can be disabled in sub-folders. Modify the .toml by creating a sub-group
 ```
 [[tool.pyrefly.sub-config]]
@@ -137,7 +138,7 @@ or
 uv run pyrefly infer <path_to_folder>
 ```
 ### Other tools
-Pyrefly can measure how much the code is measured with annotated types, which can be used in CI if it fall under a treshold. 
+Pyrefly can measure how much the code is annotated with types, which can be used in CI if it falls under a treshold. 
 Pyrefly can also generate stubs files for new modules, provided the code is fully annotated. We could use both tools in the future, this is a written reminder.
 ## Running tests
 `uv run pytest` or `uv run pytest -v` or `uv run -m pytest -v`
