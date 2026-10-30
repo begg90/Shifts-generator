@@ -53,7 +53,7 @@ class CalendarManager:
         }
 
     # might not be needed
-    #def duty_week_day_map_asperiod(self) -> dict[pd.Period, pd.DatetimeIndex]:
+    # def duty_week_day_map_asperiod(self) -> dict[pd.Period, pd.DatetimeIndex]:
     #    """returns a dictionary: week Period -> its 6 Mon-Sat working days."""
     #    return {
     #        week: pd.date_range(week.start_time.normalize(), periods=6, freq="D")

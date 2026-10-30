@@ -100,7 +100,7 @@ class scheduled_model(cp_model.CpModel):
     def assign_dutyWeek(self):
         """constraint: translates duty weeks into day shifts"""
         duty_shifts = self.shifts.xs(ShiftList.DUTY_WEEK.name, level="shift_type")
-        for (doc, week), duty_week in self.dutyWeek.items(): # pyrefly: ignore[not-iterable] # pandas-stubs types MultiIndex labels as Hashable
+        for (doc, week), duty_week in self.dutyWeek.items():  # pyrefly: ignore[not-iterable] # pandas-stubs types MultiIndex labels as Hashable
             # week is an interval
             # I can retrieve the dates of the week by using its extremes
             this_week_shift = duty_shifts.loc[(doc, slice(week.left, week.right))]
@@ -192,14 +192,14 @@ class doctorsPartialSolutionPrinter(cp_model.CpSolverSolutionCallback):
         night_duty = self._shifts.xs(ShiftList.NIGHT_DUTY.name, level="shift_type")
         shifts_worked = night_duty.groupby(level="doctor").agg(sum)
         for doc, _ in shifts_worked.items():
-            shifts_number = self.value(shifts_worked[doc]) # pyrefly: ignore[bad-index] # pandas-stubs types MultiIndex labels as Hashable
+            shifts_number = self.value(shifts_worked[doc])  # pyrefly: ignore[bad-index] # pandas-stubs types MultiIndex labels as Hashable
             print(
                 f"Doctor {doc}'s number of {ShiftList.NIGHT_DUTY.name} shifts: {shifts_number} "
             )
 
         shifts_worked = self._dutyWeek.groupby(level="doctor").agg(sum)
         for doc, _ in shifts_worked.items():
-            shifts_number = self.value(shifts_worked[doc]) # pyrefly: ignore[bad-index] # pandas-stubs types MultiIndex labels as Hashable
+            shifts_number = self.value(shifts_worked[doc])  # pyrefly: ignore[bad-index] # pandas-stubs types MultiIndex labels as Hashable
             print(
                 f"Doctor {doc}'s number of {ShiftList.DUTY_WEEK.name} shifts: {shifts_number} "
             )
