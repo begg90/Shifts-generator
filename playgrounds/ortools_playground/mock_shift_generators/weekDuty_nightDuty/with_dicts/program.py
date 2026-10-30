@@ -25,8 +25,8 @@
 
 from ortools.sat.python import cp_model
 
-from weekDuty_nightDuty.common.local_enums import SeniorityLevel, ShiftList
-from weekDuty_nightDuty.common.time_organizer import my_calendar
+from ..common.local_enums import SeniorityLevel, ShiftList
+from ..common.time_organizer import my_calendar
 
 
 def get_data():
