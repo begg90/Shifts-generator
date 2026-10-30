@@ -22,6 +22,8 @@ dev = [
     "dayplot>=0.6.0",
     "matplotlib>=3.11.2",
     "ortools>=9.15.6755",
+    "pandas-stubs>=3.1.0.261029",
+    "pyrefly>=1.4.0",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
     "ruff>=0.17.0",
@@ -29,3 +31,21 @@ dev = [
 frontend = [
     "streamlit>=1.65.0",
 ]
+
+[tool.pyrefly]
+project-includes = [
+    "**/*.py*",
+    "**/*.ipynb",
+]
+preset = "strict"
+
+[[tool.pyrefly.sub-config]]
+# apply this config to all files in `playgounds`
+matches = "playgrounds/**"
+
+# disable `missing-import` errors in `playgounds`
+[tool.pyrefly.sub-config.errors]
+missing-import = false
+implicit-any-parameter = false
+bad-argument-type = false
+implicit-any-lambda = false
