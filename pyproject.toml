@@ -31,3 +31,7 @@ dev = [
 frontend = [
     "streamlit>=1.65.0",
 ]
+
+[tool.pyright]
+include = ["src"]
+typeCheckingMode = "default"
