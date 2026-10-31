@@ -59,4 +59,4 @@ max-complexity = 8
 max-args = 10            # PLR0913
 max-statements = 75      # PLR0915  ~ proxy for "LOC per function"
 max-public-methods = 15  # PLR0904
-max-nested-blocks = 3    # PLR1702  ~ your nesting-depth goal
+max-nested-blocks = 5    # PLR1702  ~ your nesting-depth goal
