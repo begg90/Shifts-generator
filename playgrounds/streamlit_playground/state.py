@@ -23,7 +23,7 @@ def persistent_widget(widget, label, key, **kwargs):
 
 DEFAULT_STATE = {
     "logged_in": False,
-    "doctors": [],
+    "doctors": [],  # pyrefly: ignore[implicit-any-empty-container] # add meaningful explanation or remove flag and fix
     "chosen_year": 2026,
     "chosen_month": "January",
 }
