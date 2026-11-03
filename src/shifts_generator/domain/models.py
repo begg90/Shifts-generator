@@ -26,4 +26,4 @@ class Employee:
         if self.max_hours_per_week <= 0:
             raise ValueError("max_hours_per_week must be positive")
         if not isinstance(self.seniority, Seniority):
-            raise ValueError("seniority must be a Seniority enum value") """
+            raise ValueError("seniority must be a Seniority enum value")"""
