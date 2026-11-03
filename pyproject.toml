@@ -23,6 +23,7 @@ dev = [
     "matplotlib>=3.11.2",
     "ortools>=9.15.6755",
     "pandas-stubs>=3.1.0.261029",
+    "pre-commit>=4.7.0",
     "pyrefly>=1.4.0",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",

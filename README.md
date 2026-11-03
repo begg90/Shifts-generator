@@ -32,7 +32,14 @@ uv python uninstall 3.11 3.12
 ```
 git clone https://github.com/begg90/Shifts-generator
 cd Shifts-generator
+```
+To create the local environment
+```
 uv sync
+```
+The pre-commit hooks can be installed with
+```
+uv run pre-commit install
 ```
 
 ## Managing packages
