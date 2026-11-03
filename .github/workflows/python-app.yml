@@ -38,7 +38,7 @@ jobs:
       run: uv run --locked ruff check --output-format=github .
 
     - name: Check format with ruff
-      run: uv run ruff format --check --diff .
+      run: uv run --locked ruff format --check --diff .
 
     - name: Test with pytest
       run: uv run --with pytest --with pytest-cov pytest --cov-report "xml:coverage.xml" --cov=.
