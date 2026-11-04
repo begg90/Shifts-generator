@@ -36,6 +36,7 @@ frontend = [
 [tool.ruff]
 line-length = 120
 target-version = "py314"
+force-exclude = true
 exclude = [ "playgrounds" ]  # for now at least
 
 [tool.ruff.lint]
