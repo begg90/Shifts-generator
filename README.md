@@ -9,6 +9,7 @@ A better description will come when... Some of the actual application will be th
 4. Running scripts 
 5. Linting, formatting and type checking
 6. How to run tests
+7. Automatic documentation
 
 ## uv basics
 To install uv:
@@ -157,3 +158,11 @@ This auto-fixes and reformat files, so commit or stash your work before manually
 ## Running tests
 `uv run pytest` or `uv run pytest -v` or `uv run -m pytest -v`
 
+## Automatic documentation
+The files that generate the documentation can be found in `docs/source/`. The `html` documentation is generated with Sphinx and Markdown files. At the moment, we do not generate `pdf` documentation, nor we formally publish our documentation to website.
+To build the documentation, run
+
+```
+uv run sphinx-build -W -b html docs/source docs/_build/html
+```
+from the root of the project. This will create an unversioned `_build/` folder. To visualize the documentation open `_build/html/index.html` in any brower.
