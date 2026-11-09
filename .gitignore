@@ -54,3 +54,9 @@ wheels/
 # ----------------------------------------
 playgrounds/ortools_playground/mock_shift_generators/weekDuty_nightDuty/output/*
 !playgrounds/ortools_playground/mock_shift_generators/weekDuty_nightDuty/outputREADME.md
+
+
+# ----------------------------------------
+# Documentation artifacts
+# ----------------------------------------
+docs/_build/
