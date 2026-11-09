@@ -1,6 +1,6 @@
-# This level is general and does not contain any ORTools
-# contains employee, shifts, schedule, constraint (abstract)
-# This way it can be tested without invoking the solver
+"""This level is general and does not contain any ORTools
+contains employee, shifts, schedule, constraint (abstract)
+This way it can be tested without invoking the solver"""
 
 """# example of code snippet
 from dataclasses import dataclass, field

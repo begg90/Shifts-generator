@@ -1,4 +1,4 @@
-# this file contains symbolic constants
+"""this file contains symbolic constants"""
 
 
 """# example of code snippet
