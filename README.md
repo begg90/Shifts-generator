@@ -7,10 +7,8 @@ A better description will come when... Some of the actual application will be th
 2. Clone repo & set env
 3. Managing packages
 4. Running scripts 
-5. Ruff commands
-6. Running the type checker
-7. How to run tests
-
+5. Linting, formatting and type checking
+6. How to run tests
 
 ## uv basics
 To install uv:
@@ -32,7 +30,14 @@ uv python uninstall 3.11 3.12
 ```
 git clone https://github.com/begg90/Shifts-generator
 cd Shifts-generator
+```
+To create the local environment
+```
 uv sync
+```
+The pre-commit hooks can be installed with
+```
+uv run pre-commit install
 ```
 
 ## Managing packages
@@ -62,7 +67,8 @@ uv run <file_name>.py
 ```
 It can be used to run scripts or commands in the project environment. Before the invocation, uv will verify that the lockfile is up-to-date with the toml, and that the environment is up-to-date with the lockfile, keeping the project in-sync without the need for manual intervention. uv run guarantees that the command is run in an environment with all required dependencies at their locked versions (if needed, uv sync will manually update the environment).
 
-## Ruff commands
+## Linting, formatting and type checking
+### Ruff commands
 Best practice: run both linter & formatter before a pull. 
 To run the Ruff linter over the entire project or on a specified script
 ```
@@ -79,7 +85,7 @@ uv run ruff format
 uv run ruff format src/file.py
 ``` 
 
-### Ignoring errors
+#### Ignoring linting errors
 If there is a line that needs to ignore the lint rules, add a # noqa comment next to it. For example:
 ```
 from typing import Iterable  # noqa
@@ -92,8 +98,8 @@ The same can be applied to an entire script, by adding the following line at the
 ```
 # ruff: noqa: UP035
 ```
-## Running the type checker
-To run Pyrefly over the project
+### Running the type checker
+To run pyrefly over the project
 ```
 uv run pyrefly check
 ```
@@ -101,7 +107,7 @@ or over a file
 ```
 uv run pyrefly check <file_name>
 ```
-### Ignoring errors
+#### Ignoring type checking errors
 To ignore errors by line, type 
 ```
 # pyrefly: ignore[<error)type>] # <brief explanation for other devs>
@@ -126,9 +132,9 @@ The errors of the whole codeline can be ignored with
 ```
 uv run pyrefly suppress
 ```
-This will place  suppression comments on the line before each error. Alternatively, these errors can be saved in a baseline file and Pyrefly will automatically ignore them.
-See the Pyrefly documentation for further instructions.
-### Automatic type annotation
+This will place  suppression comments on the line before each error. Alternatively, these errors can be saved in a baseline file and pyrefly will automatically ignore them.
+See the pyrefly documentation for further instructions.
+#### Automatic type annotation
 Pyrefly can infer type of unannotated code by the way it is used in the current codebase. This should not replace manual review or manual annotation, as the method is experimental and it relies entirely on the current code rather than on the intention behind it. To use this tool, type
 ```
 uv run pyrefly infer <path_to_file>
@@ -137,9 +143,17 @@ or
 ```
 uv run pyrefly infer <path_to_folder>
 ```
-### Other tools
+#### Other type checking tools
 Pyrefly can measure how much the code is annotated with types, which can be used in CI if it falls under a treshold. 
 Pyrefly can also generate stubs files for new modules, provided the code is fully annotated. We could use both tools in the future, this is a written reminder.
+
+#### Pre-commit
+Hooks run automatically on commit (ruff) and push (pyrefly) once installed with `uv run pre-commit install`.
+To run everything manually
+```
+uv run pre-commit run --all-files --hook-stage pre-push
+```
+This auto-fixes and reformat files, so commit or stash your work before manually running the pre-commit script. Review these results with `git diff` before committing them.
 ## Running tests
 `uv run pytest` or `uv run pytest -v` or `uv run -m pytest -v`
 
