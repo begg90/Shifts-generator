@@ -43,7 +43,7 @@ frontend = [
 line-length = 120
 target-version = "py314"
 force-exclude = true
-exclude = [ "playgrounds" ]  # for now at least
+exclude = [ "playgrounds" ]
 
 [tool.ruff.lint]
 select = [
@@ -84,10 +84,10 @@ project-includes = [
 preset = "strict"
 
 [[tool.pyrefly.sub-config]]
-# apply this config to all files in `playgounds`
+# apply this config to all files in `playgrounds`
 matches = "playgrounds/**"
 
-# disable errors in `playgounds`
+# disable errors in `playgrounds`
 [tool.pyrefly.sub-config.errors]
 missing-import = false
 implicit-any-parameter = false
