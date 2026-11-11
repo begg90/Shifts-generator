@@ -1,4 +1,5 @@
 """an example module"""
+
 from ortools.sat.python import cp_model
 
 model = cp_model.CpModel()
