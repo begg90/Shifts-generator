@@ -16,7 +16,8 @@ extensions = [
 ]
 
 # automatic part: for now partially automatic (with automodule::, later it can be done with autosummary)
-# list methods in specifi order: "bysource" - as they appear in the code, "groupwise" - by groupd (e.g. methods, properties),
+# list methods in specifi order: "bysource" - as they appear in the code,
+# "groupwise" - by groupd (e.g. methods, properties),
 # default is alphabetical
 autodoc_member_order = "bysource"
 # show classes of modules rather than modules alone
