@@ -1,1 +1,1 @@
-# here we create all CP-SAT variables
+"""here we create all CP-SAT variables"""

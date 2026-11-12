@@ -9,6 +9,7 @@ A better description will come when... Some of the actual application will be th
 4. Running scripts 
 5. Linting, formatting and type checking
 6. How to run tests
+7. Documentation
 
 ## uv basics
 To install uv:
@@ -31,11 +32,16 @@ uv python uninstall 3.11 3.12
 git clone https://github.com/begg90/Shifts-generator
 cd Shifts-generator
 ```
-To create the local environment
+To create the local environment, type
 ```
-uv sync
+uv sync --all-groups
 ```
-The pre-commit hooks can be installed with
+This installs all dependency groups. If you don't need all groups, type
+```
+uv sync --group <group_name>
+```
+All dependency group names can be found in `pyproject.toml` under `[dependency-groups]`.\
+Finally install the pre-commit hooks with 
 ```
 uv run pre-commit install
 ```
@@ -157,3 +163,11 @@ This auto-fixes and reformat files, so commit or stash your work before manually
 ## Running tests
 `uv run pytest` or `uv run pytest -v` or `uv run -m pytest -v`
 
+## Documentation
+The files that generate the documentation can be found in `docs/source/`. The `html` documentation is generated with Sphinx and Markdown files. At the moment, we do not generate `pdf` documentation, nor we formally publish our documentation to a website.
+To build the documentation, run
+
+```
+uv run sphinx-build -W -b html docs/source docs/_build/html
+```
+from the root of the project. This will create an unversioned `_build/` folder. To visualize the documentation open `_build/html/index.html` in any brower.
