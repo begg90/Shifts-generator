@@ -18,16 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v7
-
-    - name: Set up uv
-      uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884
-      with:
-          version: "0.12.23"
-
-    - name: Set up Python 3.14
-      uses: actions/setup-python@v7
-      with:
-        python-version: "3.14"
+    - uses: ./.github/actions/setup
 
     - name: Install the project
       run: uv sync --locked --all-groups --no-group docs
@@ -62,6 +53,7 @@ jobs:
               - 'pyproject.toml'
               - 'uv.lock'
               - '.github/workflows/ci.yml'
+              - '.github/actions/setup/action.yml'
             docs:
               - 'src/**'
               - 'UI/**'
@@ -69,6 +61,7 @@ jobs:
               - 'pyproject.toml'
               - 'uv.lock'
               - '.github/workflows/ci.yml'
+              - '.github/actions/setup/action.yml'
 
   test:
     needs: changes
@@ -79,16 +72,7 @@ jobs:
       pull-requests: write 
     steps:
     - uses: actions/checkout@v7
-
-    - name: Set up uv
-      uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884
-      with:
-          version: "0.12.23"
-
-    - name: Set up Python 3.14
-      uses: actions/setup-python@v7
-      with:
-        python-version: "3.14"
+    - uses: ./.github/actions/setup
 
     - name: Install the project
       run: uv sync --locked --all-groups --no-group docs
@@ -110,16 +94,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v7
-
-    - name: Set up uv
-      uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884
-      with:
-          version: "0.12.23"
-
-    - name: Set up Python 3.14
-      uses: actions/setup-python@v7
-      with:
-        python-version: "3.14"
+    - uses: ./.github/actions/setup
 
     - name: Install the project
       run: uv sync --locked --group docs  
