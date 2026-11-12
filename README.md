@@ -32,11 +32,16 @@ uv python uninstall 3.11 3.12
 git clone https://github.com/begg90/Shifts-generator
 cd Shifts-generator
 ```
-To create the local environment
+To create the local environment, type
 ```
-uv sync
+uv sync --all-groups
 ```
-The pre-commit hooks can be installed with
+This installs all dependency groups. If you don't need all groups, type
+```
+uv sync --group <group_name>
+```
+All dependency group names can be found in `pyproject.toml` under `[dependency-groups]`.\
+Finally install the pre-commit hooks with 
 ```
 uv run pre-commit install
 ```
