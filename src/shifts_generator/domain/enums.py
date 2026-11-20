@@ -1,8 +1,20 @@
-"""this file contains symbolic constants"""
+"""Symbolic constants grouped in classes."""
 
-"""# example of code snippet
 from enum import Enum
+
+
 class Seniority(Enum):
-    JUNIOR = 0
-    MID = 1
-    SENIOR = 2"""
+    "Seniority levels represented by strings."
+
+    JUNIOR = "junior"
+    MEDIOR = "medior"
+    SENIOR = "senior"
+    SPECIAL = "special"
+
+
+class ShiftList(Enum):
+    "Shift types represented by strings."
+
+    # TODO: complete list of shifts with appropriate naming
+    DUTY_WEEK = "duty_week"
+    NIGHT_DUTY = "night_duty"
