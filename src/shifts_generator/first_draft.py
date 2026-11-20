@@ -1,6 +1,7 @@
 """an example module"""
 
 from ortools.sat.python import cp_model
+import numpy as np
 
 model = cp_model.CpModel()
 
