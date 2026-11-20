@@ -1,0 +1,104 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+    - uses: ./.github/actions/setup
+
+    - name: Install the project
+      run: uv sync --locked --all-groups --no-group docs
+
+    - name: Lint with ruff
+      run: uv run --locked ruff check --output-format=github .
+
+    - name: Check format with ruff
+      run: uv run --locked ruff format --check --diff .
+
+    - name: Type check
+      run: uv run --locked pyrefly check --output-format=github .  
+
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+      docs: ${{ steps.filter.outputs.docs }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dorny/paths-filter@v4
+        id: filter
+        with:
+          filters: |
+            code:
+              - 'src/**'
+              - 'UI/**'
+              - 'tests/**'
+              - 'pyproject.toml'
+              - 'uv.lock'
+              - '.github/workflows/ci.yml'
+              - '.github/actions/setup/action.yml'
+            docs:
+              - 'src/**'
+              - 'UI/**'
+              - 'docs/source/**'
+              - 'pyproject.toml'
+              - 'uv.lock'
+              - '.github/workflows/ci.yml'
+              - '.github/actions/setup/action.yml'
+
+  test:
+    needs: changes
+    if: ${{ needs.changes.outputs.code == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write 
+    steps:
+    - uses: actions/checkout@v7
+    - uses: ./.github/actions/setup
+
+    - name: Install the project
+      run: uv sync --locked --all-groups --no-group docs
+
+    - name: Test with pytest
+      run: uv run --locked pytest --cov-report "xml:coverage.xml" --cov=.
+
+    - name: Create Coverage
+      if: ${{ github.event_name == 'pull_request' }}
+      uses: orgoro/coverage@v3
+      with:
+          coverageFile: coverage.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  docs:
+    needs: changes
+    if: ${{ needs.changes.outputs.docs == 'true' }}
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v7
+    - uses: ./.github/actions/setup
+
+    - name: Install the project
+      run: uv sync --locked --group docs  
+
+    - name: Built documentation
+      run: uv run --locked sphinx-build -W -b html docs/source docs/_build/html
+
