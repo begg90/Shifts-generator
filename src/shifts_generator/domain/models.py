@@ -30,7 +30,7 @@ class Employee:
     Attributes:
         name (str): name of the Employee
         seniority (Seniority): seniority level of the Employee
-        available_shifts (list[ShiftList] | None = field(default=None)): list of shifts that can be assigned
+        available_shifts (list[ShiftList] | None): list of shifts that can be assigned
         to the Employee
     """
 
