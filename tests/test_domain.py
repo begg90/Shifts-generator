@@ -27,6 +27,6 @@ def test_available_shifts_rejected_for_not_special():
 
 
 @pytest.mark.parametrize("seniority", list(DEFAULT_SHIFTS))
-def test_default_shifts_match_seniority(seniority):
+def test_default_shifts_match_seniority(seniority: Seniority):
     doc = Employee(name="John", seniority=seniority)
     assert doc.available_shifts == list(DEFAULT_SHIFTS[seniority])
