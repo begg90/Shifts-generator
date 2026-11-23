@@ -1,29 +1,55 @@
-"""This level is general and does not contain any ORTools
+"""This module contains the dataclass Employee.
+
+Usage example:
+
+foo = Employee("John", Seniority.SENIOR)
+"""
+
+from dataclasses import dataclass, field
+
+from shifts_generator.domain.enums import Seniority, ShiftList
+
+"""
+Let's keep this sentence for now.
+This level is general and does not contain any ORTools.
 contains employee, shifts, schedule, constraint (abstract)
 This way it can be tested without invoking the solver"""
 
-"""# example of code snippet
-from dataclasses import dataclass, field
-from typing import Set
-from shifts_generator.domain.enums import Seniority
+
+DEFAULT_SHIFTS: dict[Seniority, tuple[ShiftList, ...]] = {
+    Seniority.JUNIOR: (ShiftList.DUTY_WEEK,),
+    Seniority.MEDIOR: (ShiftList.DUTY_WEEK, ShiftList.NIGHT_DUTY),
+    Seniority.SENIOR: (ShiftList.NIGHT_DUTY,),
+}
 
 
-@dataclass(frozen=True)
+@dataclass  # (frozen=TRUE) ?
 class Employee:
-    id: str
+    """A class representing an Employee.
+
+    Attributes:
+        name (str): name of the Employee
+        seniority (Seniority): seniority level of the Employee
+        available_shifts (list[ShiftList] | None): list of shifts that can be assigned
+        to the Employee
+    """
+
     name: str
-    roles: Set[str] = field(default_factory=set)
-    max_hours_per_week: int = 40
-    seniority: Seniority = Seniority.JUNIOR
+    seniority: Seniority
+    # TODO: unavailability: list[datetime]
+    available_shifts: list[ShiftList] | None = field(default=None)
 
     def __post_init__(self):
-        if not self.id:
-            raise ValueError("Employee id cannot be empty")
+        """validate name and seniority, assign (default) available_shifts."""
         if not self.name:
             raise ValueError("Employee name cannot be empty")
-        if not self.roles:
-            raise ValueError("Employee must have at least one role")
-        if self.max_hours_per_week <= 0:
-            raise ValueError("max_hours_per_week must be positive")
         if not isinstance(self.seniority, Seniority):
-            raise ValueError("seniority must be a Seniority enum value")"""
+            raise ValueError("seniority must be a Seniority enum value")
+        if self.seniority is Seniority.SPECIAL:
+            if not self.available_shifts:
+                raise ValueError(f"{self.name}: SPECIAL doctors need an explicit shift list")
+            self.available_shifts = list(self.available_shifts)
+        else:
+            if self.available_shifts is not None:
+                raise ValueError(f"{self.name}: custom shifts are only allowed for SPECIAL")
+            self.available_shifts = list(DEFAULT_SHIFTS[self.seniority])
