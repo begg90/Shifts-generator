@@ -1,42 +1,34 @@
+"""This page allows the user to enter the information of the team members,
+and displays the current list of team members in a table."""
+
 import pandas as pd
 import streamlit as st
 
-## Informazioni sui membri del reparto - INPUT & OUTPUT
-
 
 def store_team_member():
-    """Store the team member's name and role in the doctors list."""
+    """Store the team member's name and role in the doctors list, with a
+    check to make sure that both fields are completed correctly."""
     name = st.session_state["doctor_name"]
     role = st.session_state["doctor_role"]
-    if (
-        role == "-" or name == ""
-    ):  # Check that both fields are filled correctly before adding to the list
+    if role == "-" or name == "":
         st.warning("Please complete correctly both fields for the team member.")
         return
-    else:  # Store the updated list in session state
-        st.session_state["doctors"].append([name, role])
-        st.success(f"{role} {name} added successfully!")
+    st.session_state["doctors"].append([name, role])
+    st.success(f"{role} {name} added successfully!")
 
 
 def add_team_member():
-    """Add a new team member."""
-    with st.form(
-        "team_info_form", width="content", clear_on_submit=True
-    ):  # Make sure that the form is cleared after submission, so that the user can add multiple team members
+    """Add a new team member, making sure that the form is cleared after
+    submission, so that the user can add multiple team members."""
+    with st.form("team_info_form", width="content", clear_on_submit=True):
         st.write("Please enter the name and the role of the team members:")
         st.text_input("Name", key="doctor_name")
-        st.selectbox(
-            "Role", options=["-", "Senior", "Junior"], key="doctor_role"
-        )  # Just this three roles for now
-        st.form_submit_button(
-            "Add to the team", on_click=store_team_member
-        )  # Clicking the button will trigger the store_team_member function, which will store the values in the session state
+        st.selectbox("Role", options=["-", "Senior", "Junior"], key="doctor_role")
+        st.form_submit_button("Add to the team", on_click=store_team_member)
 
 
 add_team_member()
 
 st.write("Current team members:")
-doctors_df = pd.DataFrame(
-    st.session_state["doctors"], columns=["Name", "Role"]
-)  # Create a DataFrame from the list of doctors stored in the session state, easy to save in the future
-st.dataframe(doctors_df)  # Display the DataFrame as a table
+doctors_df = pd.DataFrame(st.session_state["doctors"], columns=["Name", "Role"])
+st.dataframe(doctors_df)

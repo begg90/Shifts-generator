@@ -43,7 +43,7 @@ frontend = [
 line-length = 120
 target-version = "py314"
 force-exclude = true
-exclude = [ "playgrounds" ]
+exclude = [ "playgrounds/ortools_playground" ]
 
 [tool.ruff.lint]
 select = [

@@ -1,17 +1,20 @@
+"""This page works on saving the state of the app, so that the user can navigate
+between pages without losing the data he has already entered."""
+
 import copy
 
 import streamlit as st
 
-# Working on saving the state of the app, so that the user can navigate between pages without losing the data he has already entered.
-
 
 def store_value(key):
-    """Store the value of a widget in the session state -> on_change callback: copy the temporary widget's value (_key) into the persistent one (key)."""
+    """Store the value of a widget in the session state -> on_change callback: copy the
+    temporary widget's value (_key) into the persistent one (key)."""
     st.session_state[key] = st.session_state[f"_{key}"]
 
 
 def load_value(key):
-    """Calling this function will load the saved value of a widget -> on_change callback: so the user can navigate between pages without losing the data."""
+    """Calling this function will load the saved value of a widget -> on_change callback
+    : so the user can navigate between pages without losing the data."""
     st.session_state[f"_{key}"] = st.session_state[key]
 
 

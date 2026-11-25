@@ -1,3 +1,6 @@
+"""On this page the user will be able to select the month and year he wants to work on, and the app will display the
+corresponding calendar."""
+
 import calendar as cal
 
 import streamlit as st
@@ -40,8 +43,6 @@ with st.form("date_form"):
 if submitted:
     index_month = mesi.index(st.session_state.chosen_month) + 1
 
-    st.write(
-        f"The month you want to work on is: {st.session_state.chosen_month} {st.session_state.chosen_year}"
-    )
+    st.write(f"The month you want to work on is: {st.session_state.chosen_month} {st.session_state.chosen_year}")
     calendar = cal.monthcalendar(int(st.session_state.chosen_year), index_month)
     st.table(calendar)
