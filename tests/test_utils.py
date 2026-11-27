@@ -13,16 +13,16 @@ def cal() -> CalendarManager:
 
 def test_year_not_empty():
     with pytest.raises(ValueError):
-        CalendarManager(year=None, month=9)
+        CalendarManager(year=None, month=9)  # pyrefly: ignore[bad-argument-type] # wrong by design
 
 
 def test_month_not_empty():
     with pytest.raises(ValueError):
-        CalendarManager(year=2026, month=None)
+        CalendarManager(year=2026, month=None)  # pyrefly: ignore[bad-argument-type] # wrong by design
 
 
 @pytest.mark.parametrize("year, month, n_days", [(2026, 1, 31), (2026, 2, 28), (2026, 4, 30), (2028, 2, 29)])
-def test_dates_covers_whole_month(year, month, n_days) -> None:
+def test_dates_covers_whole_month(year: int, month: int, n_days: int) -> None:
     cal = CalendarManager(year, month)
     assert len(cal.dates) == n_days
     assert cal.dates[0] == pd.Timestamp(year, month, 1)
@@ -38,7 +38,7 @@ def test_is_a_holiday_has_one_entry_per_day(cal: CalendarManager) -> None:
 def test_is_frozen(cal: CalendarManager) -> None:
     # with pytest.raises(Exception):
     with pytest.raises(FrozenInstanceError):
-        cal.year = 2027
+        cal.year = 2027  # pyrefly: ignore[read-only] # wrong by design
 
 
 def test_position(cal: CalendarManager) -> None:
@@ -47,7 +47,7 @@ def test_position(cal: CalendarManager) -> None:
 
 def test_position_outside_calendar(cal: CalendarManager) -> None:
     with pytest.raises(KeyError):
-        cal.position("2026-01-01")
+        cal.position(pd.Timestamp("2026-01-01"))
 
 
 def test_dates_are_unique(cal: CalendarManager) -> None:
