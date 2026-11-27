@@ -60,3 +60,11 @@ playgrounds/ortools_playground/mock_shift_generators/weekDuty_nightDuty/output/*
 # Documentation artifacts
 # ----------------------------------------
 docs/_build/
+
+# ----------------------------------------
+# Pytest artifacts
+# ----------------------------------------
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml

@@ -6,5 +6,6 @@ It can be automated with autosummary.
 
 ```{toctree}
 models
+time
 enums
 ```
